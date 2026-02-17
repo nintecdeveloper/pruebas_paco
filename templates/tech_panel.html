@@ -483,7 +483,7 @@
                     </div>
                     <div class="col-6 col-md-4">
                         <label class="form-label">SALIDA</label>
-                        <input type="time" name="exit_time" class="form-control" required>
+                        <input type="time" name="exit_time" id="fieldExitTime" class="form-control" required>
                     </div>
                 </div>
 
@@ -1249,6 +1249,14 @@
             // Inicializar firma cuando se muestra la sección de parte
             if (id === 'section-parte') {
                 setTimeout(() => { try { mainSignaturePad.init(); } catch(e) {} }, 100);
+                // ✅ Auto-rellenar hora de salida con la hora actual real
+                const exitField = document.getElementById('fieldExitTime');
+                if (exitField && !exitField.value) {
+                    const now = new Date();
+                    const hh = String(now.getHours()).padStart(2, '0');
+                    const mm = String(now.getMinutes()).padStart(2, '0');
+                    exitField.value = `${hh}:${mm}`;
+                }
             }
 
             // Cargar analíticas cuando se muestra la sección
@@ -2574,8 +2582,12 @@
 
             if (selected.value === 'none') {
                 document.getElementById('fieldClient').value = '';
-                document.getElementById('fieldDate').value = document.querySelector('[name="date"]').value;
                 document.getElementById('fieldEntryTime').value = '';
+                // Auto-fill exit time with current time when reset
+                const now = new Date();
+                const hh = String(now.getHours()).padStart(2, '0');
+                const mm = String(now.getMinutes()).padStart(2, '0');
+                document.getElementById('fieldExitTime').value = `${hh}:${mm}`;
                 document.getElementById('fieldService').selectedIndex = 0;
                 document.getElementById('fieldDescription').value = '';
                 hideClientInfo();
@@ -2593,6 +2605,11 @@
                         document.getElementById('fieldClient').value = task.client_name;
                         document.getElementById('fieldDate').value = task.date;
                         document.getElementById('fieldEntryTime').value = task.start_time;
+                        // ✅ Auto-fill exit_time with current time when linking a task
+                        const now = new Date();
+                        const hh = String(now.getHours()).padStart(2, '0');
+                        const mm = String(now.getMinutes()).padStart(2, '0');
+                        document.getElementById('fieldExitTime').value = `${hh}:${mm}`;
 
                         // Seleccionar tipo de servicio
                         const serviceSelect = document.getElementById('fieldService');
@@ -2812,7 +2829,7 @@
                     const endDt   = new Date(timerStartEpoch + timerElapsed * 1000);
                     const toHM = dt => pad2(dt.getHours()) + ':' + pad2(dt.getMinutes());
                     const entryF = document.getElementById('fieldEntryTime');
-                    const exitF  = document.querySelector('input[name="exit_time"]');
+                    const exitF  = document.getElementById('fieldExitTime');
                     if (entryF && !entryF.value) entryF.value = toHM(startDt);
                     if (exitF  && !exitF.value)  exitF.value  = toHM(endDt);
                 } catch(e) {}

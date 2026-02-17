@@ -36,7 +36,7 @@ login_manager.login_view = 'login'
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False, index=True)
-    email = db.Column(db.String(100), unique=True, nullable=False, index=True)  # ✅ CORREGIDO: unique=True
+    email = db.Column(db.String(100), nullable=False, index=True)  # ✅ Email puede ser compartido entre usuarios
     password_hash = db.Column(db.String(512))
     role = db.Column(db.String(20))  # 'admin' o 'tech'
     reset_token = db.Column(db.String(100), unique=True, nullable=True)
@@ -385,9 +385,13 @@ def dashboard():
                              all_categories=all_categories,
                              today_date=date.today().strftime('%Y-%m-%d'))
     else:
-        pending_tasks = Task.query.filter_by(
-            tech_id=current_user.id, 
-            status='Pendiente'
+        # ✅ Solo mostrar tareas pendientes de los próximos 3 días en el selector de parte
+        three_days_ahead = date.today() + timedelta(days=3)
+        pending_tasks = Task.query.filter(
+            Task.tech_id == current_user.id,
+            Task.status == 'Pendiente',
+            Task.date >= date.today(),
+            Task.date <= three_days_ahead
         ).order_by(Task.date.asc()).all()
         
         stock_items = Stock.query.filter(Stock.quantity > 0).order_by(Stock.name).all()
@@ -458,11 +462,7 @@ def manage_users():
                 flash('Ya existe un usuario con ese nombre', 'danger')
                 return redirect(url_for('dashboard'))
             
-            # ✅ VALIDACIÓN: Verificar email único
-            if User.query.filter_by(email=email).first():
-                flash('Ya existe un usuario con ese correo electrónico', 'danger')
-                return redirect(url_for('dashboard'))
-            
+            # ✅ El email puede ser compartido entre usuarios (no se valida unicidad)
             # Validar contraseña
             is_valid, message = validate_password(password)
             if not is_valid:
@@ -504,8 +504,6 @@ def manage_users():
         print(f"Error de integridad en manage_users: {str(e)}")
         if 'username' in str(e).lower():
             flash('Error: El nombre de usuario ya existe', 'danger')
-        elif 'email' in str(e).lower():
-            flash('Error: El correo electrónico ya existe', 'danger')
         else:
             flash('Error de integridad en la base de datos', 'danger')
     except SQLAlchemyError as e:
@@ -713,7 +711,7 @@ def manage_stock():
             if not item_id:
                 return jsonify({'success': False, 'msg': 'ID de artículo no proporcionado'})
             try:
-                adjustment = int(request.form.get('adjustment', 0))
+                adjustment = int(request.form.get('adjustment', request.form.get('adjust_qty', 0)))
             except (ValueError, TypeError):
                 return jsonify({'success': False, 'msg': 'El ajuste debe ser un número entero'})
 
@@ -2200,6 +2198,53 @@ def api_get_client(client_id):
     except Exception as e:
         return jsonify({'success': False, 'msg': str(e)}), 500
 
+@app.route('/report_incidencia', methods=['POST'])
+@login_required
+def report_incidencia():
+    """Endpoint para reportar incidencias desde el panel técnico"""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'success': False, 'msg': 'No se recibieron datos'}), 400
+        
+        tipo = data.get('tipo', '')
+        asunto = data.get('asunto', '')
+        descripcion = data.get('descripcion', '')
+        cliente = data.get('cliente', '')
+        usuario = data.get('usuario', current_user.username)
+        
+        if not tipo or not asunto or not descripcion:
+            return jsonify({'success': False, 'msg': 'Faltan campos obligatorios'}), 400
+        
+        # Determinar destinatario
+        email_dest = 'paco@oslaprint.com' if tipo == 'operativa' else 'nintecdeveloper@gmail.com'
+        
+        # Crear alarma en el sistema para que el admin la vea
+        alarm = Alarm(
+            alarm_type='incidencia_' + tipo,
+            title=f'Incidencia {tipo.title()}: {asunto}',
+            description=f'Técnico: {usuario}\nCliente: {cliente or "N/A"}\n\n{descripcion}',
+            client_name=cliente if cliente else None,
+            priority='high' if tipo == 'tecnica' else 'normal'
+        )
+        db.session.add(alarm)
+        db.session.commit()
+        
+        # En producción se enviaría email a email_dest
+        print(f"\n{'='*60}")
+        print(f"📧 INCIDENCIA REPORTADA → {email_dest}")
+        print(f"Tipo: {tipo} | Asunto: {asunto}")
+        print(f"Técnico: {usuario} | Cliente: {cliente or 'N/A'}")
+        print(f"Descripción: {descripcion}")
+        print('='*60 + '\n')
+        
+        return jsonify({'success': True, 'msg': 'Incidencia reportada correctamente'})
+        
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error en report_incidencia: {e}")
+        return jsonify({'success': False, 'msg': 'Error al procesar la incidencia'}), 500
+
 @app.route('/logout')
 def logout():
     logout_user()
@@ -2235,6 +2280,23 @@ def uploaded_file(filename):
 with app.app_context():
     db.create_all()
     
+    # ✅ MIGRACIÓN: Eliminar restricción unique de email en User (si existe)
+    try:
+        from sqlalchemy import inspect, text as sa_text
+        if db.engine.dialect.name == 'postgresql':
+            with db.engine.connect() as conn:
+                # Intentar eliminar el índice único de email si existe
+                conn.execute(sa_text('DROP INDEX IF EXISTS ix_user_email'))
+                conn.execute(sa_text('ALTER TABLE "user" DROP CONSTRAINT IF EXISTS uq_user_email'))
+                conn.execute(sa_text('ALTER TABLE "user" DROP CONSTRAINT IF EXISTS user_email_key'))
+                conn.commit()
+                print("✓ Restricción unique de email eliminada (si existía)")
+        elif db.engine.dialect.name == 'sqlite':
+            # SQLite no soporta DROP CONSTRAINT, se deja así (la columna ya no tiene unique en el modelo)
+            pass
+    except Exception as e:
+        print(f"Nota: Migración unique email: {e}")
+
     # ✅ MIGRACIÓN: Ampliar columna 'password_hash' a VARCHAR(512) si es PostgreSQL
     try:
         from sqlalchemy import inspect, text as sa_text

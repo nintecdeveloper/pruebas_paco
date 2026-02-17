@@ -202,9 +202,6 @@
             border-radius: 4px;
             transition: all 0.2s;
             font-size: 0.82rem;
-        }            margin-bottom: 10px;
-            border-radius: 4px;
-            transition: all 0.2s;
             cursor: pointer;
         }
 
@@ -984,7 +981,7 @@
                     <h5 class="modal-title"><i class="bi bi-box-seam me-2"></i>Editar Artículo de Stock</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <form method="POST" action="/edit_stock_item">
+                <form id="formEditStockItem" method="POST" action="/edit_stock_item/0">
                     <div class="modal-body">
                         <input type="hidden" name="item_id" id="editStockItemId">
 
@@ -2318,6 +2315,8 @@
                         document.getElementById('editStockItemSupplier').value = item.supplier || '';
                         document.getElementById('editStockItemDescription').value = item.description || '';
                         document.getElementById('editStockItemCategory').value = item.category_id || '';
+                        // ✅ Actualizar la URL de acción del formulario con el item_id correcto
+                        document.getElementById('formEditStockItem').action = `/edit_stock_item/${item.id}`;
                         new bootstrap.Modal(document.getElementById('modalEditStockItem')).show();
                     } else {
                         alert('Error al cargar los datos del artículo');
