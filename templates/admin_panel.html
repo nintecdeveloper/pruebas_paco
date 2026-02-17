@@ -1,0 +1,3812 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>OSLAPRINT | Paco</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --osla-orange: #f37021;
+            --osla-dark: #0a0a0a;
+            --osla-card: #161616;
+        }
+
+        body {
+            background-color: var(--osla-dark);
+            color: #fff;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding-bottom: 60px;
+        }
+
+        .navbar {
+            background: #000;
+            border-bottom: 2px solid var(--osla-orange);
+            padding: 0.8rem 1rem;
+        }
+
+        .text-muted {
+            color: #d1d1d1 !important;
+        }
+
+        .form-label,
+        label {
+            color: #f8f9fa !important;
+            font-weight: 500;
+        }
+
+        .nav-link {
+            color: #d1d1d1;
+            font-weight: 600;
+            border: none !important;
+            font-size: 0.9rem;
+        }
+
+        .nav-link.active {
+            color: var(--osla-orange) !important;
+            background: transparent !important;
+            border-bottom: 3px solid var(--osla-orange) !important;
+        }
+
+        .table-dark {
+            --bs-table-bg: #161616;
+            color: #f1f1f1;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .card-emp {
+            background: var(--osla-card);
+            border: 1px solid #333;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .btn-delete-user {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #dc3545;
+            background: none;
+            border: none;
+        }
+
+        #calendarAdmin,
+        #calendarGlobal {
+            background: #fff;
+            color: #000;
+            padding: 10px;
+            border-radius: 10px;
+            min-height: 620px;
+        }
+
+        /* Autocomplete Styles */
+        .suggestions-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            background: #1f1f1f;
+            border: 1px solid #444;
+            border-radius: 0 0 8px 8px;
+            z-index: 1050;
+            display: none;
+        }
+
+        .suggestion-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #333;
+            color: #fff;
+        }
+
+        .suggestion-item:hover {
+            background: var(--osla-orange);
+            color: white;
+        }
+
+        /* Filtros Calendario Dinámicos - MEJORADO */
+        .btn-check:checked+.btn-outline-custom {
+            color: white !important;
+            background-color: var(--osla-orange) !important;
+            border-color: var(--osla-orange) !important;
+            border-width: 2px;
+            opacity: 1;
+            font-weight: 700;
+            box-shadow: 0 0 10px rgba(243, 112, 33, 0.5);
+        }
+
+        .btn-outline-custom {
+            color: #bbb;
+            border-color: #555;
+            background-color: transparent;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-custom:hover {
+            opacity: 1;
+            filter: brightness(1.2);
+            background-color: rgba(243, 112, 33, 0.2);
+            border-color: var(--osla-orange);
+        }
+
+        .filter-group {
+            background: #1f1f1f;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #333;
+        }
+
+        /* Badge de soporte mejorado para mejor visibilidad */
+        .support-badge {
+            background-color: #28a745 !important;
+            color: white !important;
+            font-weight: 700 !important;
+            padding: 6px 12px !important;
+            font-size: 0.85rem !important;
+            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.4);
+            border: 2px solid #20c997 !important;
+        }
+
+        .no-support-badge {
+            background-color: #dc3545 !important;
+            color: white !important;
+            font-weight: 700 !important;
+            padding: 6px 12px !important;
+            font-size: 0.85rem !important;
+            box-shadow: 0 2px 8px rgba(220, 53, 69, 0.4);
+            border: 2px solid #c82333 !important;
+        }
+
+        /* Mobile overrides */
+        @media(max-width: 768px) {
+            .nav-tabs {
+                display: flex;
+                justify-content: space-around;
+                flex-wrap: wrap;
+            }
+
+            .nav-item {
+                flex: 1 1 30%;
+                text-align: center;
+                font-size: 0.8em;
+            }
+
+            .fc-header-toolbar {
+                flex-direction: column;
+                font-size: 0.8em;
+            }
+        }
+
+        /* Task List Styles */
+        .task-list-container {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .task-item {
+            background: #1f1f1f;
+            border-left: 4px solid #444;
+            padding: 7px 10px;
+            margin-bottom: 6px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            font-size: 0.82rem;
+        }            margin-bottom: 10px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .task-item:hover {
+            background: #2a2a2a;
+        }
+
+        .task-item.status-Completado {
+            border-left-color: #198754;
+            opacity: 0.7;
+        }
+
+        .task-item.status-Pendiente {
+            border-left-color: var(--osla-orange);
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar d-flex justify-content-between sticky-top">
+        <span class="fw-bold fs-5 text-white">OSLA<span style="color:var(--osla-orange)">PRINT</span> <small
+                class="badge bg-secondary ms-1" style="font-size: 0.6em;">PACO</small></span>
+        <div class="d-flex align-items-center gap-2">
+            <span class="text-white fw-bold me-2">Hola {{ current_user.username }}</span>
+            <button class="btn btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#modalChangePassword"
+                title="Cambiar Contraseña">
+                <i class="bi bi-key-fill"></i>
+            </button>
+            <a href="/logout" class="btn btn-outline-danger btn-sm"><i class="bi bi-power"></i></a>
+        </div>
+    </nav>
+
+    <div class="container mt-3 pb-5">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}{% for m in messages %}<div class="alert alert-info py-2 small">{{ m }}</div>{% endfor %}{%
+        endif %}
+        {% endwith %}
+
+        <ul class="nav nav-tabs mb-4 border-0 bg-dark sticky-top pt-2" style="top:55px; z-index:900;" role="tablist">
+            <li class="nav-item"><button class="nav-link active w-100" data-bs-toggle="tab"
+                    data-bs-target="#team">EQUIPO</button></li>
+            <li class="nav-item"><button class="nav-link w-100" data-bs-toggle="tab" data-bs-target="#global-agenda"
+                    id="tabGlobalBtn">AGENDA GLOBAL</button></li>
+            <li class="nav-item"><button class="nav-link w-100" data-bs-toggle="tab"
+                    data-bs-target="#data">INFORMES</button></li>
+            <li class="nav-item"><button class="nav-link w-100" data-bs-toggle="tab"
+                    data-bs-target="#statistics">ESTADÍSTICAS</button></li>
+            <li class="nav-item"><button class="nav-link w-100" data-bs-toggle="tab"
+                    data-bs-target="#stock">STOCK</button></li>
+            <li class="nav-item"><button class="nav-link w-100" data-bs-toggle="tab"
+                    data-bs-target="#clients">CLIENTES</button></li>
+            <li class="nav-item"><button class="nav-link w-100" data-bs-toggle="tab"
+                    data-bs-target="#config">CONFIGURACIÓN</button></li>
+        </ul>
+
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="team">
+                <div class="d-flex justify-content-between mb-3 align-items-center">
+                    <h4 class="fw-bold text-white fs-5 m-0">Gestión de Equipo</h4>
+                    <button class="btn btn-warning btn-sm fw-bold" data-bs-toggle="modal"
+                        data-bs-target="#modalAddUser">
+                        <i class="bi bi-person-plus-fill me-1"></i> Nuevo Usuario
+                    </button>
+                </div>
+
+                <div class="row g-3">
+                    {% for u in empleados %}
+                    <div class="col-12 col-sm-6 col-md-4">
+                        <div class="card-emp">
+                            <button class="btn-delete-user" data-bs-toggle="modal" data-bs-target="#modalDeleteUser"
+                                onclick="document.getElementById('deleteUserId').value='{{ u.id }}';">
+                                <i class="bi bi-x-circle-fill fs-4"></i>
+                            </button>
+                            <i class="bi bi-person-circle fs-1 mb-2 text-warning"></i>
+                            <h5 class="mb-1 text-white fw-bold">{{ u.username }}</h5>
+                            <small class="text-muted">ID: #{{ u.id }}</small>
+                            <hr class="my-3" style="border-color:#333;">
+                            <button class="btn btn-sm btn-primary w-100 mb-2"
+                                onclick="loadEmployeeCalendar({{ u.id }})">
+                                <i class="bi bi-calendar-check-fill me-1"></i> Ver Calendario
+                            </button>
+                            <button class="btn btn-sm btn-outline-info w-100 mb-2" onclick="viewTechStats({{ u.id }})">
+                                <i class="bi bi-graph-up me-1"></i> Ver Estadísticas
+                            </button>
+                            <!-- ✅ NUEVO: Botón perfil técnico -->
+                            <button class="btn btn-sm btn-outline-warning w-100" onclick="openTechProfileModal({{ u.id }}, '{{ u.username }}')">
+                                <i class="bi bi-person-lines-fill me-1"></i> Ver Perfil
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div id="calendarAdminContainer" class="mt-4" style="display:none;">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="text-white fw-bold m-0" id="empCalendarTitle">Calendario de Empleado</h5>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="closeEmployeeCalendar()">
+                            <i class="bi bi-x-circle me-1"></i> Cerrar
+                        </button>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-9">
+                            <div id="calendarAdmin"></div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="card bg-dark border-secondary mt-3 mt-lg-0">
+                                <div class="card-header bg-secondary text-white">
+                                    <h6 class="mb-0 small"><i class="bi bi-list-task me-2"></i>Lista de Tareas</h6>
+                                </div>
+                                <div class="card-body p-1">
+                                    <div id="adminTaskListContainer" class="task-list-container" style="max-height: 580px; overflow-y: auto;">
+                                        <div class="text-center text-muted py-3">Cargando...</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="global-agenda">
+                <div class="d-flex justify-content-between mb-3 align-items-center flex-wrap gap-2">
+                    <h4 class="fw-bold text-white fs-5 m-0">Agenda Global de Tareas</h4>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-info btn-sm fw-bold" onclick="refreshGlobalCalendar()"
+                            title="Actualizar calendario">
+                            <i class="bi bi-arrow-clockwise me-1"></i> Actualizar
+                        </button>
+                        <button class="btn btn-warning btn-sm fw-bold" data-bs-toggle="modal"
+                            data-bs-target="#modalScheduleAppointment">
+                            <i class="bi bi-calendar-plus-fill me-1"></i> Nueva Cita
+                        </button>
+                    </div>
+                </div>
+
+                <!-- FILTROS DINÁMICOS POR TIPO -->
+                <div class="filter-group mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <small class="text-muted fw-bold">FILTRAR POR TIPO</small>
+                        <button class="btn btn-outline-light btn-sm" onclick="checkAllFilters()">
+                            <i class="bi bi-check-all me-1"></i> Todos
+                        </button>
+                    </div>
+                    <div class="btn-group-sm d-flex flex-wrap gap-2" role="group">
+                        {% for svc in all_service_types %}
+                        <input type="checkbox" class="btn-check filter-cb" id="filter-{{ svc.id }}"
+                            value="{{ svc.name }}" checked onchange="updateGlobalFilters()">
+                        <label class="btn btn-outline-custom flex-grow-1" for="filter-{{ svc.id }}"
+                            data-color="{{ svc.color }}">
+                            {{ svc.name }}
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-9">
+                        <div id="calendarGlobal"></div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="card bg-dark border-secondary mt-3 mt-lg-0">
+                            <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0 small"><i class="bi bi-list-task me-2"></i>Tareas</h6>
+                                <div class="form-check form-switch mb-0">
+                                    <input class="form-check-input" type="checkbox" id="toggleCompletedGlobal" onchange="renderGlobalTaskList()">
+                                    <label class="form-check-label" style="font-size:0.75rem;" for="toggleCompletedGlobal">Completadas</label>
+                                </div>
+                            </div>
+                            <div class="card-body p-1">
+                                <div id="globalTaskListContainer" class="task-list-container" style="max-height: 580px; overflow-y: auto;">
+                                    <div class="text-center text-muted py-3">Cargando...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="data">
+                <h4 class="fw-bold text-white fs-5 mb-3">Informes Técnicos Completados</h4>
+                <div class="table-responsive">
+                    <table class="table table-dark table-sm">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Cliente</th>
+                                <th>Servicio</th>
+                                <th>Fecha</th>
+                                <th>Técnico</th>
+                                <th><i class="bi bi-stopwatch me-1"></i>Tiempo</th>
+                                <th>Archivos</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in informes %}
+                            <tr>
+                                <td>{{ r.id }}</td>
+                                <td>{{ r.client_name }}</td>
+                                <td>{{ r.service_type.name if r.service_type is not string else r.service_type }}</td>
+                                <td>{{ r.date.strftime('%d/%m/%Y') }}</td>
+                                <td>{{ r.tech.username if r.tech else 'Sin técnico' }}</td>
+                                <td>
+                                    {% if r.work_duration %}
+                                        <span style="
+                                            font-family: 'Courier New', monospace;
+                                            font-size: 0.85rem;
+                                            font-weight: 700;
+                                            color: #f37021;
+                                            background: #1a0d00;
+                                            border: 1px solid #f37021;
+                                            border-radius: 6px;
+                                            padding: 3px 8px;
+                                            letter-spacing: 1px;
+                                            white-space: nowrap;
+                                        ">{{ r.work_duration }}</span>
+                                    {% else %}
+                                        <span class="text-muted small">—</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if r.attachments %}
+                                    {% set att_list = r.attachments|from_json %}
+                                    {% if att_list and att_list|length > 0 %}
+                                    <button class="btn btn-sm btn-outline-info"
+                                        onclick="showAttachmentsModal({{ r.id }}, '{{ r.client_name }}')">
+                                        <i class="bi bi-paperclip"></i> {{ att_list|length }}
+                                    </button>
+                                    {% else %}
+                                    <span class="text-muted small">Sin archivos</span>
+                                    {% endif %}
+                                    {% else %}
+                                    <span class="text-muted small">Sin archivos</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="/print_report/{{ r.id }}" target="_blank"
+                                        class="btn btn-sm btn-outline-warning">
+                                        <i class="bi bi-printer-fill"></i> Imprimir
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB ESTADÍSTICAS -->
+            <div class="tab-pane fade" id="statistics">
+                <h4 class="fw-bold text-white fs-5 mb-4">
+                    <i class="bi bi-graph-up-arrow me-2 text-info"></i>Estadísticas Globales
+                </h4>
+
+                <!-- Filtros -->
+                <div class="card bg-dark border-secondary mb-4">
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label text-white fw-bold">Técnico</label>
+                                <select id="statsFilterTech" class="form-select bg-black text-white border-secondary">
+                                    <option value="">Todos los técnicos</option>
+                                    {% for emp in empleados %}
+                                    <option value="{{ emp.id }}">{{ emp.username }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label text-white fw-bold">Período</label>
+                                <select id="statsFilterPeriod" class="form-select bg-black text-white border-secondary">
+                                    <option value="all">Todo el historial</option>
+                                    <option value="month">Último mes</option>
+                                    <option value="week">Última semana</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <button class="btn btn-info w-100" onclick="loadAdminStatistics()">
+                                    <i class="bi bi-arrow-clockwise me-1"></i>Actualizar Estadísticas
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPIs -->
+                <div class="row g-3 mb-4" id="statsKPIs">
+                    <div class="col-md-3">
+                        <div class="card bg-dark border-info">
+                            <div class="card-body text-center">
+                                <i class="bi bi-clipboard-check fs-1 text-info"></i>
+                                <h3 class="text-white mt-2 mb-0" id="kpiTotalTasks">-</h3>
+                                <small class="text-muted">Total Tareas</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-dark border-success">
+                            <div class="card-body text-center">
+                                <i class="bi bi-check-circle fs-1 text-success"></i>
+                                <h3 class="text-white mt-2 mb-0" id="kpiCompletedTasks">-</h3>
+                                <small class="text-muted">Completadas</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-dark border-warning">
+                            <div class="card-body text-center">
+                                <i class="bi bi-hourglass-split fs-1 text-warning"></i>
+                                <h3 class="text-white mt-2 mb-0" id="kpiPendingTasks">-</h3>
+                                <small class="text-muted">Pendientes</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-dark border-secondary">
+                            <div class="card-body text-center">
+                                <i class="bi bi-people fs-1 text-secondary"></i>
+                                <h3 class="text-white mt-2 mb-0" id="kpiActiveTechs">-</h3>
+                                <small class="text-muted">Técnicos Activos</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gráficos -->
+                <div class="row g-3">
+                    <!-- Gráfico Circular de Tipos de Tareas -->
+                    <div class="col-md-6">
+                        <div class="card bg-dark border-secondary">
+                            <div class="card-header bg-black border-secondary">
+                                <h6 class="text-white fw-bold mb-0">
+                                    <i class="bi bi-pie-chart-fill me-2 text-warning"></i>
+                                    Distribución por Tipo de Servicio
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="taskTypesPieChart" style="max-height: 300px;"></canvas>
+                                <div id="noPieData" class="text-center text-muted py-5" style="display: none;">
+                                    <i class="bi bi-info-circle fs-1"></i>
+                                    <p class="mt-2">No hay datos disponibles</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECCIÓN ANALÍTICAS - REMOVIDA -->
+            <!-- Las analíticas ahora se muestran individualmente por técnico desde la tarjeta de cada uno en EQUIPO -->
+
+            <div class="tab-pane fade" id="stock">
+                <div class="d-flex justify-content-between mb-3 align-items-center">
+                    <h4 class="fw-bold text-white fs-5 m-0">Gestión de Inventario</h4>
+                    <div>
+                        <button class="btn btn-outline-info btn-sm fw-bold me-2" onclick="loadStockTree()">
+                            <i class="bi bi-arrow-clockwise me-1"></i> Recargar
+                        </button>
+                        <button class="btn btn-warning btn-sm fw-bold" data-bs-toggle="modal"
+                            data-bs-target="#modalAddStock">
+                            <i class="bi bi-plus-circle-fill me-1"></i> Nuevo Artículo
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Vista jerárquica de categorías y productos -->
+                <div id="stockCategoriesTree" class="border border-secondary rounded p-3 bg-black"
+                    style="min-height: 300px;">
+                    <div class="text-center text-muted py-3">
+                        <i class="bi bi-hourglass-split"></i> Cargando inventario...
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="clients">
+                <div class="d-flex justify-content-between mb-3 align-items-center flex-wrap gap-2">
+                    <h4 class="fw-bold text-white fs-5 m-0">Gestión de Clientes</h4>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-warning btn-sm fw-bold" data-bs-toggle="modal"
+                            data-bs-target="#modalAddClient">
+                            <i class="bi bi-person-plus-fill me-1"></i> Nuevo Cliente
+                        </button>
+                        <button class="btn btn-outline-info btn-sm" data-bs-toggle="modal"
+                            data-bs-target="#modalImportClients">
+                            <i class="bi bi-upload me-1"></i> Importar
+                        </button>
+                    </div>
+                </div>
+
+                <input type="text" id="clientSearchInput" class="form-control mb-3" placeholder="🔍 Buscar cliente..."
+                    onkeyup="filterClientsView()">
+
+                <div class="row g-3" id="clientsCardContainer">
+                    {% for c in clients %}
+                    <div class="col-12 col-md-6 col-lg-4 client-card-wrapper" data-client-name="{{ c.name|lower }}"
+                        data-client-phone="{{ c.phone }}" data-client-email="{{ c.email }}">
+                        <div class="card bg-dark border-secondary text-white h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 class="card-title text-warning fw-bold mb-0">{{ c.name }}</h6>
+                                {% if c.has_support %}
+                                    <span class="badge support-badge">
+                                        <i class="bi bi-shield-check"></i> Soporte
+                                    </span>
+                                {% else %}
+                                    <span class="badge no-support-badge">
+                                        <i class="bi bi-shield-x"></i> Sin Soporte
+                                    </span>
+                                {% endif %}
+                                </div>
+
+                                {% if c.has_support and c.support_schedule %}
+                                <div class="mb-1">
+                                    {% if c.support_schedule == 'lv' %}
+                                    <span class="badge bg-success bg-opacity-25 border border-success text-success" style="font-size:0.72rem;">
+                                        <i class="bi bi-clock me-1"></i>L–V
+                                    </span>
+                                    {% elif c.support_schedule == 'ls' %}
+                                    <span class="badge bg-warning bg-opacity-25 border border-warning text-warning" style="font-size:0.72rem;">
+                                        <i class="bi bi-clock me-1"></i>L–S
+                                    </span>
+                                    {% elif c.support_schedule == 'ld' %}
+                                    <span class="badge bg-danger bg-opacity-25 border border-danger text-danger" style="font-size:0.72rem;">
+                                        <i class="bi bi-clock me-1"></i>L–D
+                                    </span>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+
+                                <hr class="border-secondary my-2">
+
+                                <div class="small mb-1">
+                                    <i class="bi bi-telephone-fill text-info me-2"></i>
+                                    <a href="tel:{{ c.phone }}" class="text-decoration-none text-white">{{ c.phone
+                                        }}</a>
+                                </div>
+
+                                <div class="small mb-1">
+                                    <i class="bi bi-envelope-fill text-info me-2"></i>
+                                    <a href="/cdn-cgi/l/email-protection#fc8787dc9fd299919d9590dc8181"
+                                        class="text-decoration-none text-white">{{ c.email }}</a>
+                                </div>
+
+                                <div class="small mb-2">
+                                    <i class="bi bi-geo-alt-fill text-info me-2"></i>
+                                    <span class="text-muted">{{ c.address }}</span>
+                                </div>
+
+                                {% if c.link %}
+                                <div class="mb-2">
+                                    <a href="{{ c.link }}" target="_blank" class="btn btn-sm btn-outline-info w-100">
+                                        <i class="bi bi-globe me-1"></i>Sitio Web
+                                    </a>
+                                </div>
+                                {% endif %}
+
+                                {% if c.notes %}
+                                <div class="small text-muted fst-italic border-top border-secondary pt-2 mt-2">
+                                    <i class="bi bi-sticky-fill me-1"></i>{{ c.notes|truncate(60) }}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="card-footer bg-black border-secondary">
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm btn-outline-warning flex-fill"
+                                        onclick="openEditClientModalFull({{ c.id }}, '{{ c.name }}', '{{ c.phone }}', '{{ c.email }}', '{{ c.address }}', '{{ c.link or '' }}', '{{ c.notes or '' }}', {{ c.has_support|lower }}, '{{ c.support_schedule or '' }}')">
+                                        <i class="bi bi-pencil-fill"></i> Editar
+                                    </button>
+                                    <form method="POST" action="/manage_clients" class="flex-fill">
+                                        <input type="hidden" name="action" value="delete">
+                                        <input type="hidden" name="client_id" value="{{ c.id }}">
+                                        <button class="btn btn-sm btn-outline-danger w-100"
+                                            onclick="return confirm('¿Eliminar cliente {{ c.name }}?')">
+                                            <i class="bi bi-trash-fill"></i> Eliminar
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                    {% if clients|length == 0 %}
+                    <div class="col-12">
+                        <div class="alert alert-info text-center">
+                            <i class="bi bi-info-circle me-2"></i>No hay clientes registrados aún.
+                            Haz clic en "Nuevo Cliente" para añadir uno.
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="config">
+                <h4 class="fw-bold text-white fs-5 mb-3">Configuración del Sistema</h4>
+
+                <!-- GESTIÓN DE CATEGORÍAS DE STOCK -->
+                <div class="card bg-dark text-white p-3 mb-3 border border-secondary">
+                    <h6 class="fw-bold mb-3">
+                        <i class="bi bi-diagram-3-fill me-2 text-info"></i>
+                        Categorías y Subcategorías de Stock
+                    </h6>
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <button class="btn btn-sm btn-info me-2" data-bs-toggle="modal"
+                                data-bs-target="#modalAddCategory">
+                                <i class="bi bi-plus-circle-fill me-1"></i> Nueva Categoría Principal
+                            </button>
+                            <button class="btn btn-sm btn-outline-info" onclick="loadCategoriesTree()">
+                                <i class="bi bi-arrow-clockwise me-1"></i> Recargar
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="categoriesTree" class="border border-secondary rounded p-3 bg-black"
+                        style="min-height: 200px;">
+                        <div class="text-center text-muted py-3">
+                            <i class="bi bi-hourglass-split"></i> Cargando categorías...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TIPOS DE SERVICIO -->
+                <div class="card bg-dark text-white p-3 mb-3 border border-secondary">
+                    <h6 class="fw-bold mb-3"><i class="bi bi-wrench-adjustable-circle-fill me-2 text-warning"></i>
+                        Tipos de Servicio</h6>
+                    <button class="btn btn-sm btn-warning mb-3" data-bs-toggle="modal"
+                        data-bs-target="#modalAddService">
+                        <i class="bi bi-plus-circle-fill me-1"></i> Añadir Tipo de Servicio
+                    </button>
+                    <div class="table-responsive">
+                        <table class="table table-dark table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Color</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for s in services %}
+                                <tr>
+                                    <td>{{ s.name }}</td>
+                                    <td><span class="badge service-color-badge" data-bg-color="{{ s.color }}">{{ s.color
+                                            }}</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-warning" data-service-id="{{ s.id }}"
+                                            data-service-name="{{ s.name }}" data-service-color="{{ s.color }}"
+                                            onclick="openEditServiceModal(this.dataset.serviceId, this.dataset.serviceName, this.dataset.serviceColor)">
+                                            <i class="bi bi-pencil-fill"></i>
+                                        </button>
+                                        <form method="POST" action="/manage_services" class="d-inline">
+                                            <input type="hidden" name="action" value="delete">
+                                            <input type="hidden" name="service_id" value="{{ s.id }}">
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                onclick="return confirm('¿Eliminar este tipo de servicio?')">
+                                                <i class="bi bi-trash-fill"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALES -->
+    <!-- Modal: Añadir Usuario -->
+    <div class="modal fade" id="modalAddUser" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">Nuevo Usuario</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="POST" action="/manage_users">
+                    <div class="modal-body">
+                        <input type="hidden" name="action" value="add">
+                        <label class="form-label">Usuario</label>
+                        <input type="text" name="username" class="form-control mb-2" required>
+                        <label class="form-label">Contraseña</label>
+                        <input type="password" name="password" class="form-control mb-2" required>
+                        <label class="form-label">Email</label>
+                        <input type="email" name="email" class="form-control mb-2" required
+                            placeholder="ejemplo@oslaprint.com">
+                        <label class="form-label">Rol</label>
+                        <select name="role" class="form-select" required>
+                            <option value="tech">Técnico</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <div class="modal-footer border-secondary">
+                        <button type="submit" class="btn btn-warning">Crear</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Eliminar Usuario -->
+    <div class="modal fade" id="modalDeleteUser" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-danger">Confirmar Eliminación</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="POST" action="/manage_users">
+                    <div class="modal-body">
+                        <input type="hidden" name="action" value="delete">
+                        <input type="hidden" name="user_id" id="deleteUserId">
+                        <p>¿Seguro que deseas eliminar este usuario? Todas sus tareas también serán eliminadas.</p>
+                    </div>
+                    <div class="modal-footer border-secondary">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-danger">Eliminar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Cambiar Contraseña -->
+    <div class="modal fade" id="modalChangePassword" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">Cambiar Contraseña</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="POST" action="/change_password">
+                    <div class="modal-body">
+                        <label class="form-label">Contraseña Actual</label>
+                        <input type="password" name="current_password" class="form-control mb-2" required>
+                        <label class="form-label">Nueva Contraseña</label>
+                        <input type="password" name="new_password" class="form-control" required>
+                    </div>
+                    <div class="modal-footer border-secondary">
+                        <button type="submit" class="btn btn-warning">Actualizar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Añadir Stock -->
+    <div class="modal fade" id="modalAddStock" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title"><i class="bi bi-box-seam-fill me-2"></i>Nuevo Artículo de Stock</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <!-- ✅ CORREGIDO: usar AJAX en lugar de POST directo para controlar subcategory_id -->
+                <form id="formAddStock">
+                    <div class="modal-body">
+                        <div id="addStockAlert" class="alert d-none mb-3" role="alert"></div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Nombre del Producto *</label>
+                            <input type="text" name="name" id="addStockName" class="form-control" required
+                                placeholder="Ej: Cajón Cashlogy 1500">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Categoría * <small class="text-muted">(Obligatorio)</small></label>
+                            <select name="category_id" id="addStockCategory" class="form-select" required
+                                onchange="loadSubcategories(this.value, 'addStockSubcategory')">
+                                <option value="">-- Seleccionar Categoría --</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3" id="subcategorySection" style="display: none;">
+                            <label class="form-label">Subcategoría <small class="text-muted">(Opcional)</small></label>
+                            <select name="subcategory_id" id="addStockSubcategory" class="form-select">
+                                <option value="">-- Sin subcategoría (guardar en categoría padre) --</option>
+                            </select>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Stock Actual *</label>
+                                <input type="number" name="quantity" class="form-control" value="0" required min="0">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Stock Mínimo *</label>
+                                <input type="number" name="min_stock" class="form-control" value="5" required min="0">
+                                <small class="text-muted">Se activará alerta cuando esté por debajo</small>
+                            </div>
+                        </div>
+
+                        <!-- ✅ NUEVO: Campo Proveedor -->
+                        <div class="mb-3">
+                            <label class="form-label">Proveedor</label>
+                            <input type="text" name="supplier" class="form-control"
+                                placeholder="Ej: HP España, Canon Iberia...">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Descripción</label>
+                            <textarea name="description" class="form-control" rows="2"
+                                placeholder="Detalles adicionales del producto"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-secondary">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-warning" id="btnAddStockSubmit">
+                            <i class="bi bi-plus-circle-fill me-1"></i>Añadir Producto
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Ajustar Stock -->
+    <div class="modal fade" id="modalAdjustStock" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">Ajustar Cantidad</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="POST" action="/manage_stock">
+                    <div class="modal-body">
+                        <input type="hidden" name="action" value="adjust">
+                        <input type="hidden" name="item_id" id="adjId">
+                        <p>Artículo: <strong id="adjName"></strong></p>
+                        <label class="form-label">Cantidad a Añadir/Restar (use - para restar)</label>
+                        <input type="number" name="adjust_qty" class="form-control" required>
+                    </div>
+                    <div class="modal-footer border-secondary">
+                        <button type="submit" class="btn btn-warning">Ajustar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Editar Stock Completo -->
+    <div class="modal fade" id="modalEditStock" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">Editar Artículo</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="POST" action="/manage_stock">
+                    <div class="modal-body">
+                        <input type="hidden" name="action" value="edit">
+                        <input type="hidden" name="item_id" id="editFullId">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" name="name" id="editFullName" class="form-control mb-2" required>
+                        <label class="form-label">Categoría</label>
+                        <input type="text" name="category" id="editFullCat" class="form-control mb-2" required>
+                        <label class="form-label">Cantidad</label>
+                        <input type="number" name="quantity" id="editFullQty" class="form-control" required>
+                    </div>
+                    <div class="modal-footer border-secondary">
+                        <button type="submit" class="btn btn-warning">Guardar Cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Editar Artículo de Stock (COMPLETO) -->
+    <div class="modal fade" id="modalEditStockItem" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title"><i class="bi bi-box-seam me-2"></i>Editar Artículo de Stock</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="POST" action="/edit_stock_item">
+                    <div class="modal-body">
+                        <input type="hidden" name="item_id" id="editStockItemId">
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Nombre del Artículo *</label>
+                                <input type="text" name="name" id="editStockItemName" class="form-control" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Categoría</label>
+                                <select name="category_id" id="editStockItemCategory" class="form-select">
+                                    <option value="">Sin categoría</option>
+                                    {% for cat in all_categories %}
+                                    <option value="{{ cat.id }}">{{ cat.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Cantidad Actual *</label>
+                                <input type="number" name="quantity" id="editStockItemQuantity" class="form-control"
+                                    min="0" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Stock Mínimo *</label>
+                                <input type="number" name="min_stock" id="editStockItemMinStock" class="form-control"
+                                    min="0" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Proveedor</label>
+                                <input type="text" name="supplier" id="editStockItemSupplier" class="form-control"
+                                    placeholder="Opcional">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Descripción / Notas</label>
+                            <textarea name="description" id="editStockItemDescription" class="form-control" rows="3"
+                                placeholder="Información adicional sobre el artículo..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-secondary">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="bi bi-save me-1"></i>Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Editar Categoría de Stock -->
+    <div class="modal fade" id="modalEditCategory" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title"><i class="bi bi-folder-fill me-2"></i>Editar Categoría</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="POST" action="/edit_stock_category">
+                    <div class="modal-body">
+                        <input type="hidden" name="category_id" id="editCategoryId">
+
+                        <div class="mb-3">
+                            <label class="form-label">Nombre de la Categoría *</label>
+                            <input type="text" name="name" id="editCategoryName" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Categoría Padre (Opcional)</label>
+                            <select name="parent_id" id="editCategoryParent" class="form-select">
+                                <option value="">-- Sin padre (categoría principal) --</option>
+                                {% for cat in all_categories %}
+                                <option value="{{ cat.id }}">{{ cat.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <small class="text-muted">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Si seleccionas una categoría padre, esta se convertirá en subcategoría
+                            </small>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-secondary">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="bi bi-save me-1"></i>Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Añadir Cliente -->
+    <div class="modal fade" id="modalAddClient" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title"><i class="bi bi-person-plus-fill me-2"></i>Nuevo Cliente</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="POST" action="/manage_clients">
+                    <div class="modal-body">
+                        <input type="hidden" name="action" value="add">
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Nombre del Cliente *</label>
+                                <input type="text" name="name" class="form-control" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Teléfono *</label>
+                                <input type="tel" name="phone" class="form-control" required
+                                    placeholder="Ej: 912345678">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Correo Electrónico *</label>
+                                <input type="email" name="email" class="form-control" required
+                                    placeholder="ejemplo@email.com">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Enlace/URL (Opcional)</label>
+                                <input type="url" name="link" class="form-control" placeholder="https://ejemplo.com">
+                                <small class="text-muted">
+                                    <i class="bi bi-info-circle me-1"></i>Portal web, sistema interno, etc.
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Dirección Completa *</label>
+                            <input type="text" name="address" id="clientAddress" class="form-control" required
+                                placeholder="Calle, número, ciudad">
+                            <a href="#" id="openGoogleMaps" class="small text-info mt-1 d-block" target="_blank"
+                                style="display:none;">
+                                <i class="bi bi-geo-alt-fill me-1"></i>Abrir en Google Maps
+                            </a>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Notas Internas</label>
+                            <textarea name="notes" class="form-control" rows="2"
+                                placeholder="Comentarios internos sobre el cliente"></textarea>
+                        </div>
+
+                        <hr class="border-secondary">
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">¿Tiene Soporte Técnico Contratado?</label>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="hasSupportSwitch"
+                                    name="has_support" onchange="toggleSupportSchedule('addSupportScheduleDiv', this.checked)">
+                                <label class="form-check-label" for="hasSupportSwitch">
+                                    Sí, tiene soporte técnico
+                                </label>
+                            </div>
+                            <small class="text-muted">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Marca esta opción si el cliente tiene contratado soporte técnico con OSLAPRINT
+                            </small>
+                        </div>
+
+                        <!-- ✅ NUEVO: Horario de soporte -->
+                        <div class="mb-3" id="addSupportScheduleDiv" style="display:none;">
+                            <label class="form-label fw-bold text-info"><i class="bi bi-clock me-1"></i>Horario de Soporte</label>
+                            <div class="d-flex gap-3 flex-wrap">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="support_schedule" id="addSched_lv" value="lv" checked>
+                                    <label class="form-check-label" for="addSched_lv">
+                                        <i class="bi bi-calendar-week me-1 text-success"></i>Lunes a Viernes
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="support_schedule" id="addSched_ls" value="ls">
+                                    <label class="form-check-label" for="addSched_ls">
+                                        <i class="bi bi-calendar-week me-1 text-warning"></i>Lunes a Sábado
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="support_schedule" id="addSched_ld" value="ld">
+                                    <label class="form-check-label" for="addSched_ld">
+                                        <i class="bi bi-calendar-week me-1 text-danger"></i>Lunes a Domingo
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-secondary">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="bi bi-save-fill me-1"></i>Guardar Cliente
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Editar Cliente -->
+    <div class="modal fade" id="modalEditClient" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title"><i class="bi bi-pencil-square me-2"></i>Editar Cliente</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="POST" action="/manage_clients">
+                    <div class="modal-body">
+                        <input type="hidden" name="action" value="edit">
+                        <input type="hidden" name="client_id" id="editClientId">
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Nombre del Cliente *</label>
+                                <input type="text" name="name" id="editClientName" class="form-control" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Teléfono *</label>
+                                <input type="tel" name="phone" id="editClientPhone" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Correo Electrónico *</label>
+                                <input type="email" name="email" id="editClientEmail" class="form-control" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Enlace/URL (Opcional)</label>
+                                <input type="url" name="link" id="editClientLink" class="form-control"
+                                    placeholder="https://ejemplo.com">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Dirección Completa *</label>
+                            <input type="text" name="address" id="editClientAddress" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Notas Internas</label>
+                            <textarea name="notes" id="editClientNotes" class="form-control" rows="2"></textarea>
+                        </div>
+
+                        <hr class="border-secondary">
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">¿Tiene Soporte Técnico Contratado?</label>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="editHasSupport" name="has_support"
+                                    onchange="toggleSupportSchedule('editSupportScheduleDiv', this.checked)">
+                                <label class="form-check-label" for="editHasSupport">
+                                    Sí, tiene soporte técnico
+                                </label>
+                            </div>
+                            <small class="text-muted">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Marca esta opción si el cliente tiene contratado soporte técnico con OSLAPRINT
+                            </small>
+                        </div>
+
+                        <!-- ✅ NUEVO: Horario de soporte en edición -->
+                        <div class="mb-3" id="editSupportScheduleDiv" style="display:none;">
+                            <label class="form-label fw-bold text-info"><i class="bi bi-clock me-1"></i>Horario de Soporte</label>
+                            <div class="d-flex gap-3 flex-wrap">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="support_schedule" id="editSched_lv" value="lv">
+                                    <label class="form-check-label" for="editSched_lv">
+                                        <i class="bi bi-calendar-week me-1 text-success"></i>Lunes a Viernes
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="support_schedule" id="editSched_ls" value="ls">
+                                    <label class="form-check-label" for="editSched_ls">
+                                        <i class="bi bi-calendar-week me-1 text-warning"></i>Lunes a Sábado
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="support_schedule" id="editSched_ld" value="ld">
+                                    <label class="form-check-label" for="editSched_ld">
+                                        <i class="bi bi-calendar-week me-1 text-danger"></i>Lunes a Domingo
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-secondary">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="bi bi-save-fill me-1"></i>Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ✅ NUEVO Modal: Perfil de Técnico -->
+    <div class="modal fade" id="modalTechProfile" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">
+                        <i class="bi bi-person-lines-fill me-2 text-warning"></i>
+                        Perfil Técnico: <span id="techProfileUsername" class="text-warning"></span>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="techProfileAlert" class="alert d-none mb-3"></div>
+                    <input type="hidden" id="techProfileUserId">
+
+                    <!-- Tabs del perfil -->
+                    <ul class="nav nav-tabs mb-3 border-secondary" role="tablist">
+                        <li class="nav-item">
+                            <button class="nav-link active text-white" data-bs-toggle="tab" data-bs-target="#tabPersonal">
+                                <i class="bi bi-person me-1"></i>Datos Personales
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link text-white" data-bs-toggle="tab" data-bs-target="#tabLaboral">
+                                <i class="bi bi-briefcase me-1"></i>Datos Laborales
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link text-white" data-bs-toggle="tab" data-bs-target="#tabNotas">
+                                <i class="bi bi-sticky me-1"></i>Notas Internas
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content">
+                        <!-- DATOS PERSONALES -->
+                        <div class="tab-pane fade show active" id="tabPersonal">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Nombre Completo</label>
+                                    <input type="text" id="tp_full_name" class="form-control" placeholder="Nombre y apellidos">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">DNI / NIE</label>
+                                    <input type="text" id="tp_dni" class="form-control" placeholder="12345678A">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Teléfono</label>
+                                    <input type="tel" id="tp_phone" class="form-control" placeholder="6XX XXX XXX">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Dirección</label>
+                                    <input type="text" id="tp_address" class="form-control" placeholder="Calle, número, ciudad">
+                                </div>
+                            </div>
+                            <hr class="border-secondary">
+                            <h6 class="text-info mb-3"><i class="bi bi-telephone-fill me-2"></i>Contacto de Emergencia</h6>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Nombre del Contacto</label>
+                                    <input type="text" id="tp_emergency_contact" class="form-control" placeholder="Nombre del familiar/contacto">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Teléfono de Emergencia</label>
+                                    <input type="tel" id="tp_emergency_phone" class="form-control" placeholder="6XX XXX XXX">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- DATOS LABORALES -->
+                        <div class="tab-pane fade" id="tabLaboral">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Fecha de Incorporación</label>
+                                    <input type="date" id="tp_start_date" class="form-control">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Email del Sistema</label>
+                                    <input type="email" id="tp_email_display" class="form-control" disabled style="opacity:0.7;">
+                                    <small class="text-muted">El email se gestiona desde el panel de usuarios</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- NOTAS INTERNAS -->
+                        <div class="tab-pane fade" id="tabNotas">
+                            <div class="mb-1">
+                                <label class="form-label">Notas Internas del Administrador</label>
+                                <div class="alert alert-warning py-2 small mb-2">
+                                    <i class="bi bi-eye-slash me-1"></i>
+                                    Estas notas son <strong>solo visibles para el administrador</strong>. El técnico no tiene acceso a ellas.
+                                </div>
+                                <textarea id="tp_internal_notes" class="form-control" rows="7"
+                                    placeholder="Observaciones internas, evaluaciones, incidencias, etc..."></textarea>
+                            </div>
+                            <div id="techProfileUpdatedAt" class="text-muted small mt-2"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-warning fw-bold" onclick="saveTechProfile()" id="btnSaveTechProfile">
+                        <i class="bi bi-save-fill me-1"></i>Guardar Perfil
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Importar Clientes -->
+    <div class="modal fade" id="modalImportClients" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">Importar Clientes (JSON)</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="POST" action="/import_clients" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <label class="form-label">Archivo JSON</label>
+                        <input type="file" name="file" class="form-control" accept=".json" required>
+                        <small class="text-muted">Formato esperado: [{"name": "Cliente1"}, {"name":
+                            "Cliente2"}]</small>
+                    </div>
+                    <div class="modal-footer border-secondary">
+                        <button type="submit" class="btn btn-info">Importar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Añadir Tipo de Servicio -->
+    <div class="modal fade" id="modalAddService" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">Nuevo Tipo de Servicio</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="POST" action="/manage_services">
+                    <div class="modal-body">
+                        <input type="hidden" name="action" value="add">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" name="name" class="form-control mb-2" required>
+                        <label class="form-label">Color (Hex)</label>
+                        <input type="color" name="color" class="form-control" value="#6c757d" required>
+                    </div>
+                    <div class="modal-footer border-secondary">
+                        <button type="submit" class="btn btn-warning">Añadir</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Editar Tipo de Servicio -->
+    <div class="modal fade" id="modalEditService" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">Editar Tipo de Servicio</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="POST" action="/manage_services">
+                    <div class="modal-body">
+                        <input type="hidden" name="action" value="edit">
+                        <input type="hidden" name="service_id" id="editServiceId">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" name="name" id="editServiceName" class="form-control mb-2" required>
+                        <label class="form-label">Color (Hex)</label>
+                        <input type="color" name="color" id="editServiceColor" class="form-control" required>
+                    </div>
+                    <div class="modal-footer border-secondary">
+                        <button type="submit" class="btn btn-warning">Guardar Cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Agendar Cita -->
+    <div class="modal fade" id="modalScheduleAppointment" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">Agendar Nueva Cita</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="POST" action="/schedule_appointment">
+                    <div class="modal-body">
+                        <label class="form-label">Técnico</label>
+                        <select name="tech_id" class="form-select mb-2" required>
+                            {% for u in empleados %}
+                            <option value="{{ u.id }}">{{ u.username }}</option>
+                            {% endfor %}
+                        </select>
+                        <label class="form-label">Cliente</label>
+                        <div class="position-relative mb-2">
+                            <input type="text" name="client_name" id="scheduleClientInput" class="form-control" required
+                                autocomplete="off">
+                            <div id="scheduleClientList" class="suggestions-list"></div>
+                        </div>
+                        <label class="form-label">Fecha</label>
+                        <input type="date" name="date" class="form-control mb-2" required>
+                        <label class="form-label">Hora</label>
+                        <input type="time" name="time" class="form-control mb-2" required>
+                        <label class="form-label">Tipo de Servicio</label>
+                        <select name="service_type" class="form-select mb-2" required>
+                            {% for svc in all_service_types %}
+                            <option value="{{ svc.name }}">{{ svc.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <label class="form-label">Notas</label>
+                        <textarea name="notes" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="modal-footer border-secondary">
+                        <button type="submit" class="btn btn-warning">Agendar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Editar Cita desde Admin -->
+    <div class="modal fade" id="modalEditAppointmentAdmin" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">Editar Cita</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="POST" id="formEditApptAdmin">
+                    <div class="modal-body">
+                        <label class="form-label">Cliente</label>
+                        <div class="position-relative mb-2">
+                            <input type="text" name="client_name" id="editAdminClientInput" class="form-control"
+                                required autocomplete="off">
+                            <div id="editAdminClientList" class="suggestions-list"></div>
+                        </div>
+                        <label class="form-label">Fecha</label>
+                        <input type="date" name="date" id="editAdminDate" class="form-control mb-2" required>
+                        <label class="form-label">Hora</label>
+                        <input type="time" name="time" id="editAdminTime" class="form-control mb-2" required>
+                        <label class="form-label">Tipo de Servicio</label>
+                        <select name="service_type" id="editAdminService" class="form-select mb-2" required>
+                            {% for svc in all_service_types %}
+                            <option value="{{ svc.name }}">{{ svc.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <label class="form-label">Notas</label>
+                        <textarea name="notes" id="editAdminNotes" class="form-control" rows="3"></textarea>
+                    </div>
+                    <div class="modal-footer border-secondary">
+                        <button type="submit" class="btn btn-warning">Guardar Cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Acciones Tarea Admin -->
+    <div class="modal fade" id="modalActionAdmin" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">Acciones sobre la Tarea</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="evtId">
+                    <p><strong>Cliente:</strong> <span id="evtClient"></span></p>
+                    <p><strong>Técnico:</strong> <span id="evtTech"></span></p>
+                    <p><strong>Servicio:</strong> <span id="evtService"></span></p>
+                    <p><strong>Estado:</strong> <span id="evtStatus"></span></p>
+                    <p><strong>Descripción:</strong><br><span id="evtDesc"></span></p>
+
+                    <!-- Sección de Archivos Adjuntos -->
+                    <div id="attachmentsSection" class="mt-3" style="display: none;">
+                        <hr class="border-secondary">
+                        <p class="fw-bold mb-2"><i class="bi bi-paperclip me-1"></i> Archivos Adjuntos:</p>
+                        <div id="attachmentsList" class="list-group"></div>
+                    </div>
+
+                    <div class="d-grid gap-2 mt-3">
+                        <button class="btn btn-info" onclick="viewTaskDetails()">
+                            <i class="bi bi-eye-fill me-1"></i> Ver Detalles Completos
+                        </button>
+                        <button class="btn btn-warning" onclick="openEditAdminModal()">
+                            <i class="bi bi-pencil-fill me-1"></i> Editar Cita
+                        </button>
+                        <button class="btn btn-success" onclick="performAdminTaskAction('complete')">
+                            <i class="bi bi-check-circle-fill me-1"></i> Marcar Completado
+                        </button>
+                        <button class="btn btn-danger" onclick="performAdminTaskAction('delete')">
+                            <i class="bi bi-trash-fill me-1"></i> Eliminar Tarea
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal: Detalles Completos de la Tarea -->
+    <div class="modal fade" id="modalTaskDetails" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">
+                        <i class="bi bi-file-text-fill me-2 text-warning"></i>
+                        Detalles del Parte de Trabajo
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <p class="mb-2"><strong class="text-warning">Cliente:</strong><br>
+                                <span id="detailClient"></span>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-2"><strong class="text-warning">Técnico:</strong><br>
+                                <span id="detailTech"></span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <p class="mb-2"><strong class="text-warning">Fecha:</strong><br>
+                                <span id="detailDate"></span>
+                            </p>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="mb-2"><strong class="text-warning">Hora Entrada:</strong><br>
+                                <span id="detailStartTime"></span>
+                            </p>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="mb-2"><strong class="text-warning">Hora Salida:</strong><br>
+                                <span id="detailEndTime"></span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <p class="mb-2"><strong class="text-warning">Servicio:</strong><br>
+                                <span id="detailService"></span>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-2"><strong class="text-warning">Estado:</strong><br>
+                                <span id="detailStatus"></span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <p class="mb-2"><strong class="text-warning">Descripción del Trabajo:</strong></p>
+                        <div class="p-3 bg-black rounded border border-secondary" id="detailDescription"></div>
+                    </div>
+
+                    <div id="detailStockSection" class="mb-3" style="display: none;">
+                        <p class="mb-2"><strong class="text-warning">Material Utilizado/Retirado:</strong></p>
+                        <div class="p-3 bg-black rounded border border-secondary" id="detailStock"></div>
+                    </div>
+
+                    <div id="detailPartsSection" class="mb-3" style="display: none;">
+                        <p class="mb-2"><strong class="text-warning">Notas/Material Adicional:</strong></p>
+                        <div class="p-3 bg-black rounded border border-secondary" id="detailParts"></div>
+                    </div>
+
+                    <!-- Archivos Adjuntos -->
+                    <div id="detailAttachmentsSection" class="mb-3" style="display: none;">
+                        <p class="mb-2"><strong class="text-warning">
+                                <i class="bi bi-paperclip me-1"></i> Archivos Adjuntos:
+                            </strong></p>
+                        <div id="detailAttachmentsList" class="list-group"></div>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <a id="printReportLink" href="#" target="_blank" class="btn btn-warning">
+                        <i class="bi bi-printer-fill me-1"></i> Imprimir Parte
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal: Añadir Categoría de Stock -->
+    <div class="modal fade" id="modalAddCategory" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">Nueva Categoría/Subcategoría</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="categoryForm">
+                    <div class="modal-body">
+                        <input type="hidden" name="action" value="add">
+
+                        <div class="mb-3">
+                            <label class="form-label">Nombre *</label>
+                            <input type="text" name="name" id="categoryName" class="form-control" required
+                                placeholder="Ej: TPV, Consumibles, etc.">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Tipo de Categoría</label>
+                            <select id="categoryType" class="form-select" onchange="toggleParentSelect()">
+                                <option value="main">Categoría Principal</option>
+                                <option value="sub">Subcategoría</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3" id="parentCategoryDiv" style="display: none;">
+                            <label class="form-label">Categoría Padre *</label>
+                            <select name="parent_id" id="parentCategorySelect" class="form-select">
+                                <option value="">-- Seleccionar --</option>
+                            </select>
+                        </div>
+
+                        <div class="alert alert-info small">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Las subcategorías se crean dentro de categorías principales existentes.
+                        </div>
+                    </div>
+                    <div class="modal-footer border-secondary">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-info">
+                            <i class="bi bi-plus-circle-fill me-1"></i>Crear
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal: Archivos Adjuntos del Informe -->
+    <div class="modal fade" id="modalAttachments" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">
+                        <i class="bi bi-paperclip me-2"></i>
+                        Archivos Adjuntos — <span id="attachModalClient"></span>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="attachmentsListContainer">
+                        <div class="text-center text-muted py-3">
+                            <i class="bi bi-hourglass-split"></i> Cargando archivos...
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Modal: Estadísticas del Técnico -->
+    <div class="modal fade" id="modalTechStats" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">
+                        <i class="bi bi-graph-up me-2 text-info"></i>
+                        Estadísticas del Técnico
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="techStatsContent">
+                        <div class="text-center text-muted py-3">
+                            <i class="bi bi-hourglass-split"></i> Selecciona un técnico...
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var calendar = null;
+        var calendarGlobalInstance = null;
+        var modalActionAdmin = new bootstrap.Modal(document.getElementById('modalActionAdmin'));
+        var currentEmployeeId = null;
+        var cachedAdminTasks = []; // ✅ NUEVO: Caché de tareas del empleado
+        var cachedGlobalTasks = []; // ✅ NUEVO: Caché de tareas globales
+
+        // Aplicar colores dinámicos a los labels de filtros
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('label[data-color]').forEach(function (label) {
+                const color = label.dataset.color;
+                label.style.borderColor = color;
+                label.style.color = color;
+            });
+        });
+
+        setupAutocomplete('scheduleClientInput', 'scheduleClientList');
+
+        function loadEmployeeCalendar(userId) {
+            currentEmployeeId = userId;
+            document.getElementById('calendarAdminContainer').style.display = 'block';
+            document.getElementById('empCalendarTitle').innerText = `Calendario de Empleado #${userId}`;
+
+            if (calendar) {
+                calendar.destroy();
+            }
+
+            var calendarEl = document.getElementById('calendarAdmin');
+            var isMobile = window.innerWidth < 768;
+
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: isMobile ? 'listWeek' : 'dayGridMonth',
+                locale: 'es',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+                },
+                buttonText: {
+                    today: 'Hoy',
+                    month: 'Mes',
+                    week: 'Semana',
+                    day: 'Día',
+                    list: 'Lista'
+                },
+                height: 'auto',
+                navLinks: true,
+                editable: false,
+                dayMaxEvents: true,
+                events: `/api/admin/tasks/${userId}`,
+                eventClick: handleEventClick,
+                dateClick: handleAdminDateClick,
+                selectable: true,
+                eventContent: function (arg) {
+                    let statusIcon = arg.event.extendedProps.status === 'Completado' ? '✅' : '⏳';
+                    return { html: `<div class="fc-content overflow-hidden text-truncate">${statusIcon} ${arg.event.title}</div>` };
+                },
+                eventsSet: function (events) {
+                    // Serializar EventApi a objetos planos (.start es Date en FullCalendar, necesitamos string)
+                    cachedAdminTasks = events.map(function(e) {
+                        return {
+                            id: e.id,
+                            title: e.title,
+                            start: e.start ? e.start.toISOString() : '',
+                            color: e.backgroundColor || '#6c757d',
+                            extendedProps: {
+                                status: e.extendedProps.status,
+                                client: e.extendedProps.client,
+                                tech_name: e.extendedProps.tech_name,
+                                service_type: e.extendedProps.service_type,
+                                desc: e.extendedProps.desc
+                            }
+                        };
+                    });
+                    renderAdminTaskList();
+                }
+            });
+            calendar.render();
+        }
+
+        function closeEmployeeCalendar() {
+            document.getElementById('calendarAdminContainer').style.display = 'none';
+            if (calendar) {
+                calendar.destroy();
+                calendar = null;
+            }
+        }
+
+        function handleEventClick(info) {
+            document.getElementById('evtId').value = info.event.id;
+            document.getElementById('evtClient').innerText = info.event.extendedProps.client;
+            document.getElementById('evtTech').innerText = info.event.extendedProps.tech_name;
+            document.getElementById('evtService').innerText = info.event.extendedProps.service_type;
+            document.getElementById('evtStatus').innerText = info.event.extendedProps.status;
+            document.getElementById('evtDesc').innerText = info.event.extendedProps.desc || '(Sin descripción)';
+            modalActionAdmin.show();
+        }
+
+        // CALENDARIO GLOBAL
+        document.getElementById('tabGlobalBtn').addEventListener('click', function () {
+            if (calendarGlobalInstance) {
+                calendarGlobalInstance.render();
+                updateGlobalFilters();
+                return;
+            }
+
+            var calendarEl = document.getElementById('calendarGlobal');
+            var isMobile = window.innerWidth < 768;
+
+            calendarGlobalInstance = new FullCalendar.Calendar(calendarEl, {
+                initialView: isMobile ? 'listWeek' : 'dayGridMonth',
+                locale: 'es',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+                },
+                buttonText: {
+                    today: 'Hoy',
+                    month: 'Mes',
+                    week: 'Semana',
+                    day: 'Día',
+                    list: 'Lista'
+                },
+                height: 'auto',
+                navLinks: true,
+                editable: false,
+                dayMaxEvents: true,
+                // Source como función para poder filtrar sin refetch completo
+                events: function(fetchInfo, successCallback, failureCallback) {
+                    fetch('/api/admin/all_tasks')
+                        .then(function(res) { return res.json(); })
+                        .then(function(data) {
+                            var activeTypes = getActiveFilters();
+                            var filtered = data.filter(function(ev) {
+                                var stype = ev.extendedProps ? ev.extendedProps.service_type : ev.service_type;
+                                return activeTypes.length === 0 || activeTypes.includes(stype);
+                            });
+                            successCallback(filtered);
+                        })
+                        .catch(failureCallback);
+                },
+                dateClick: handleAdminDateClickGlobal,
+                selectable: true,
+
+                // Estilo de eventos completados
+                eventDidMount: function (info) {
+                    if (info.event.extendedProps.status === 'Completado') {
+                        info.el.style.opacity = '0.7';
+                        info.el.style.border = '2px solid #198754';
+                        const title = info.el.querySelector('.fc-event-title');
+                        if (title && !title.innerHTML.startsWith('✓')) {
+                            title.innerHTML = '✓ ' + title.innerHTML;
+                        }
+                    }
+                },
+
+                eventContent: function (arg) {
+                    let techName = arg.event.extendedProps.tech_name || '';
+                    let title = arg.event.title;
+                    let attachmentIcon = arg.event.extendedProps.has_attachments ? '<i class="bi bi-paperclip text-warning ms-1"></i>' : '';
+                    return { html: `<div class="fc-content overflow-hidden text-truncate"><span class="fw-bold badge bg-dark text-white me-1 border border-secondary">${techName}</span> ${title}${attachmentIcon}</div>` };
+                },
+
+                eventClick: handleEventClick,
+                
+                eventsSet: function (events) {
+                    // Serializar EventApi a objetos planos (.start es Date en FullCalendar, necesitamos string)
+                    cachedGlobalTasks = events.map(function(e) {
+                        return {
+                            id: e.id,
+                            title: e.title,
+                            start: e.start ? e.start.toISOString() : '',
+                            color: e.backgroundColor || '#6c757d',
+                            extendedProps: {
+                                status: e.extendedProps.status,
+                                client: e.extendedProps.client,
+                                tech_name: e.extendedProps.tech_name,
+                                service_type: e.extendedProps.service_type,
+                                desc: e.extendedProps.desc,
+                                has_attachments: e.extendedProps.has_attachments
+                            }
+                        };
+                    });
+                    renderGlobalTaskList();
+                }
+            });
+            calendarGlobalInstance.render();
+        });
+
+        // --- LÓGICA DE FILTRADO DINÁMICO ---
+        function getActiveFilters() {
+            const activeTypes = [];
+            document.querySelectorAll('.filter-cb:checked').forEach(cb => {
+                activeTypes.push(cb.value);
+            });
+            return activeTypes;
+        }
+
+        function checkAllFilters() {
+            document.querySelectorAll('.filter-cb').forEach(cb => {
+                cb.checked = true;
+            });
+            updateGlobalFilters();
+        }
+
+        function updateGlobalFilters() {
+            if (!calendarGlobalInstance) return;
+            // refetchEvents() llama a la función events() que aplica getActiveFilters()
+            // eventsSet se dispara automáticamente y actualiza la lista lateral
+            calendarGlobalInstance.refetchEvents();
+        }
+
+        function refreshGlobalCalendar() {
+            if (!calendarGlobalInstance) {
+                alert('El calendario global no está inicializado');
+                return;
+            }
+
+            calendarGlobalInstance.refetchEvents();
+
+            // Mostrar feedback visual
+            const btn = event.target.closest('button');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Actualizando...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+            }, 1000);
+        }
+
+        // ✅ NUEVO: Renderizar lista de tareas del empleado
+        function renderAdminTaskList() {
+            const container = document.getElementById('adminTaskListContainer');
+            if (!container) return;
+
+            if (cachedAdminTasks.length === 0) {
+                container.innerHTML = '<div class="text-center text-muted py-3">No hay tareas</div>';
+                return;
+            }
+
+            // Ordenar por fecha
+            const sorted = [...cachedAdminTasks].sort((a, b) => new Date(a.start) - new Date(b.start));
+
+            container.innerHTML = '';
+            sorted.forEach(t => {
+                const isDone = t.extendedProps.status === 'Completado';
+                const dateStr = t.start.split('T')[0];
+                const timeStr = t.start.includes('T') ? t.start.split('T')[1].substring(0, 5) : '';
+                const typeColor = t.color || '#6c757d';
+
+                const div = document.createElement('div');
+                div.className = `task-item status-${t.extendedProps.status}`;
+                div.style.borderLeftColor = typeColor;
+                if (isDone) div.style.opacity = '0.6';
+
+                div.innerHTML = `
+                    <div class="fw-bold text-white">${t.extendedProps.client || 'Sin cliente'}</div>
+                    <div class="small text-secondary">
+                        <i class="bi bi-calendar-event me-1"></i>${dateStr} ${timeStr ? '| ' + timeStr : ''}
+                        <br>
+                        <span class="badge ${isDone ? 'bg-success' : 'bg-warning text-dark'}">${t.extendedProps.status}</span>
+                        <span class="badge" style="background:${typeColor}">${t.extendedProps.service_type || 'Sin tipo'}</span>
+                    </div>
+                `;
+                
+                div.onclick = () => {
+                    const evt = calendar.getEventById(t.id);
+                    if (evt) handleEventClick({ event: evt });
+                };
+
+                container.appendChild(div);
+            });
+        }
+
+        // ✅ NUEVO: Renderizar lista de tareas globales
+        function renderGlobalTaskList() {
+            const container = document.getElementById('globalTaskListContainer');
+            if (!container) return;
+
+            const showCompleted = document.getElementById('toggleCompletedGlobal')?.checked || false;
+            const activeTypes = getActiveFilters();
+
+            // Filtrar por estado Y por tipo activo
+            let filtered = cachedGlobalTasks.filter(t => {
+                const statusOk = showCompleted ? true : t.extendedProps.status !== 'Completado';
+                const typeOk = activeTypes.length === 0 || activeTypes.includes(t.extendedProps.service_type);
+                return statusOk && typeOk;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="text-center text-muted py-3">No hay tareas</div>';
+                return;
+            }
+
+            // Ordenar por fecha
+            const sorted = [...filtered].sort((a, b) => new Date(a.start) - new Date(b.start));
+
+            container.innerHTML = '';
+            sorted.forEach(t => {
+                const isDone = t.extendedProps.status === 'Completado';
+                const dateStr = t.start.split('T')[0];
+                const timeStr = t.start.includes('T') ? t.start.split('T')[1].substring(0, 5) : '';
+                const typeColor = t.color || '#6c757d';
+
+                const div = document.createElement('div');
+                div.className = `task-item status-${t.extendedProps.status}`;
+                div.style.borderLeftColor = typeColor;
+                if (isDone) div.style.opacity = '0.6';
+
+                div.innerHTML = `
+                    <div class="fw-bold text-white">${t.extendedProps.client || 'Sin cliente'}</div>
+                    <div class="small">
+                        <span class="badge bg-secondary">${t.extendedProps.tech_name || 'Sin técnico'}</span>
+                    </div>
+                    <div class="small text-secondary">
+                        <i class="bi bi-calendar-event me-1"></i>${dateStr} ${timeStr ? '| ' + timeStr : ''}
+                        <br>
+                        <span class="badge ${isDone ? 'bg-success' : 'bg-warning text-dark'}">${t.extendedProps.status}</span>
+                        <span class="badge" style="background:${typeColor}">${t.extendedProps.service_type || 'Sin tipo'}</span>
+                    </div>
+                `;
+                
+                div.onclick = () => {
+                    const evt = calendarGlobalInstance.getEventById(t.id);
+                    if (evt) handleEventClick({ event: evt });
+                };
+
+                container.appendChild(div);
+            });
+        }
+
+        // --- GESTIÓN DE ACCIONES ---
+        function performAdminTaskAction(action) {
+            const id = document.getElementById('evtId').value;
+
+            const actionNames = {
+                'complete': 'completar',
+                'delete': 'eliminar',
+                'cancel': 'cancelar'
+            };
+
+            const actionName = actionNames[action] || action;
+
+            if (!confirm(`¿Confirmar ${actionName} esta tarea?`)) return;
+
+            fetch(`/api/task_action/${id}/${action}`, { method: 'POST' })
+                .then(res => {
+                    if (!res.ok) {
+                        throw new Error(`HTTP error! status: ${res.status}`);
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        // Mostrar mensaje de éxito
+                        const successMsg = action === 'delete' ? 'Tarea eliminada correctamente' :
+                            action === 'complete' ? 'Tarea marcada como completada' :
+                                'Acción completada correctamente';
+
+                        // Refrescar calendarios PRIMERO
+                        if (calendar) calendar.refetchEvents();
+                        if (calendarGlobalInstance) calendarGlobalInstance.refetchEvents();
+
+                        // Cerrar modal
+                        modalActionAdmin.hide();
+
+                        // Mostrar confirmación después de cerrar modal
+                        setTimeout(() => {
+                            alert('✓ ' + successMsg);
+                        }, 100);
+                    } else {
+                        alert('❌ Error: ' + (data.msg || 'No se pudo completar la acción'));
+                    }
+                })
+                .catch(err => {
+                    console.error('Error en performAdminTaskAction:', err);
+                    alert('❌ Error de conexión. Por favor, intenta de nuevo.');
+                });
+        }
+
+        // --- HELPERS Y MODALES ---
+        function ajustarStock(id, name) {
+            document.getElementById('adjId').value = id;
+            document.getElementById('adjName').innerText = name;
+            new bootstrap.Modal(document.getElementById('modalAdjustStock')).show();
+        }
+
+        function openEditStockModal(id, name, category, qty) {
+            document.getElementById('editFullId').value = id;
+            document.getElementById('editFullName').value = name;
+            document.getElementById('editFullCat').value = category;
+            document.getElementById('editFullQty').value = qty;
+            new bootstrap.Modal(document.getElementById('modalEditStock')).show();
+        }
+
+        function openEditClientModal(id, name) {
+            document.getElementById('editClientId').value = id;
+            document.getElementById('editClientName').value = name;
+            new bootstrap.Modal(document.getElementById('modalEditClient')).show();
+        }
+
+        // Nueva función completa para editar clientes con todos los campos
+        function openEditClientModalFull(id, name, phone, email, address, link, notes, hasSupport, supportSchedule) {
+            document.getElementById('editClientId').value = id;
+            document.getElementById('editClientName').value = name;
+            document.getElementById('editClientPhone').value = phone;
+            document.getElementById('editClientEmail').value = email;
+            document.getElementById('editClientAddress').value = address;
+            document.getElementById('editClientLink').value = link || '';
+            document.getElementById('editClientNotes').value = notes || '';
+            document.getElementById('editHasSupport').checked = hasSupport;
+
+            // ✅ NUEVO: gestionar horario de soporte
+            toggleSupportSchedule('editSupportScheduleDiv', hasSupport);
+            const sched = supportSchedule || 'lv';
+            const radio = document.getElementById('editSched_' + sched);
+            if (radio) radio.checked = true;
+
+            new bootstrap.Modal(document.getElementById('modalEditClient')).show();
+        }
+
+        // ✅ NUEVO: mostrar/ocultar el selector de horario de soporte
+        function toggleSupportSchedule(divId, show) {
+            const div = document.getElementById(divId);
+            if (div) div.style.display = show ? 'block' : 'none';
+        }
+
+        // ✅ NUEVO: Abrir y cargar perfil de técnico
+        function openTechProfileModal(userId, username) {
+            document.getElementById('techProfileUserId').value = userId;
+            document.getElementById('techProfileUsername').textContent = username;
+            document.getElementById('techProfileAlert').classList.add('d-none');
+
+            // Reset campos
+            ['tp_full_name','tp_dni','tp_phone','tp_address','tp_emergency_contact',
+             'tp_emergency_phone','tp_start_date','tp_internal_notes'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            document.getElementById('techProfileUpdatedAt').textContent = '';
+
+            fetch(`/api/tech_profile/${userId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        const p = data.profile;
+                        const u = data.user;
+                        document.getElementById('tp_full_name').value = p.full_name || '';
+                        document.getElementById('tp_dni').value = p.dni || '';
+                        document.getElementById('tp_phone').value = p.phone || '';
+                        document.getElementById('tp_address').value = p.address || '';
+                        document.getElementById('tp_emergency_contact').value = p.emergency_contact || '';
+                        document.getElementById('tp_emergency_phone').value = p.emergency_phone || '';
+                        document.getElementById('tp_start_date').value = p.start_date || '';
+                        document.getElementById('tp_email_display').value = u.email || '';
+                        document.getElementById('tp_internal_notes').value = p.internal_notes || '';
+                        if (p.updated_at) {
+                            document.getElementById('techProfileUpdatedAt').textContent = 'Última actualización: ' + p.updated_at;
+                        }
+                    }
+                })
+                .catch(err => console.error('Error cargando perfil técnico:', err));
+
+            new bootstrap.Modal(document.getElementById('modalTechProfile')).show();
+        }
+
+        function saveTechProfile() {
+            const userId = document.getElementById('techProfileUserId').value;
+            const btn = document.getElementById('btnSaveTechProfile');
+            const alertDiv = document.getElementById('techProfileAlert');
+
+            const formData = new FormData();
+            formData.append('full_name', document.getElementById('tp_full_name').value);
+            formData.append('dni', document.getElementById('tp_dni').value);
+            formData.append('phone', document.getElementById('tp_phone').value);
+            formData.append('address', document.getElementById('tp_address').value);
+            formData.append('emergency_contact', document.getElementById('tp_emergency_contact').value);
+            formData.append('emergency_phone', document.getElementById('tp_emergency_phone').value);
+            formData.append('start_date', document.getElementById('tp_start_date').value);
+            formData.append('internal_notes', document.getElementById('tp_internal_notes').value);
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Guardando...';
+
+            fetch(`/api/tech_profile/${userId}`, { method: 'POST', body: formData })
+                .then(res => res.json())
+                .then(data => {
+                    alertDiv.className = data.success ? 'alert alert-success' : 'alert alert-danger';
+                    alertDiv.textContent = data.msg;
+                    alertDiv.classList.remove('d-none');
+                    if (data.success) {
+                        document.getElementById('techProfileUpdatedAt').textContent =
+                            'Última actualización: ' + new Date().toLocaleString('es-ES');
+                    }
+                })
+                .catch(err => {
+                    alertDiv.className = 'alert alert-danger';
+                    alertDiv.textContent = 'Error de conexión al guardar el perfil';
+                    alertDiv.classList.remove('d-none');
+                })
+                .finally(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="bi bi-save-fill me-1"></i>Guardar Perfil';
+                });
+        }
+
+        function openEditServiceModal(id, name, color) {
+            document.getElementById('editServiceId').value = id;
+            document.getElementById('editServiceName').value = name;
+            document.getElementById('editServiceColor').value = color;
+            new bootstrap.Modal(document.getElementById('modalEditService')).show();
+        }
+
+        // Nueva función para editar elementos de stock completos
+        function openEditStockItemModal(itemId) {
+            fetch(`/api/stock_item/${itemId}`)
+                .then(res => res.json())
+                .then(response => {
+                    if (response.success) {
+                        const item = response.data;
+                        document.getElementById('editStockItemId').value = item.id;
+                        document.getElementById('editStockItemName').value = item.name;
+                        document.getElementById('editStockItemQuantity').value = item.quantity;
+                        document.getElementById('editStockItemMinStock').value = item.min_stock;
+                        document.getElementById('editStockItemSupplier').value = item.supplier || '';
+                        document.getElementById('editStockItemDescription').value = item.description || '';
+                        document.getElementById('editStockItemCategory').value = item.category_id || '';
+                        new bootstrap.Modal(document.getElementById('modalEditStockItem')).show();
+                    } else {
+                        alert('Error al cargar los datos del artículo');
+                    }
+                })
+                .catch(err => {
+                    console.error('Error:', err);
+                    alert('Error al cargar el artículo');
+                });
+        }
+
+        // Nueva función para editar categorías de stock
+        function openEditCategoryModal(categoryId, categoryName, parentId) {
+            document.getElementById('editCategoryId').value = categoryId;
+            document.getElementById('editCategoryName').value = categoryName;
+            document.getElementById('editCategoryParent').value = parentId || '';
+            new bootstrap.Modal(document.getElementById('modalEditCategory')).show();
+        }
+
+        function setupAutocomplete(inputId, listId) {
+            const input = document.getElementById(inputId);
+            const list = document.getElementById(listId);
+            if (!input) return;
+
+            input.addEventListener('input', function () {
+                const val = this.value;
+                if (!val || val.length < 2) {
+                    list.innerHTML = '';
+                    list.style.display = 'none';
+                    return;
+                }
+                fetch(`/api/clients_search?q=${encodeURIComponent(val)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        list.innerHTML = '';
+                        if (data.length > 0) {
+                            list.style.display = 'block';
+                            data.forEach(item => {
+                                const div = document.createElement('div');
+                                div.className = 'suggestion-item';
+                                div.innerText = item.name;
+                                div.onclick = function () {
+                                    input.value = item.name;
+                                    list.innerHTML = '';
+                                    list.style.display = 'none';
+                                };
+                                list.appendChild(div);
+                            });
+                        } else {
+                            list.style.display = 'none';
+                        }
+                    });
+            });
+
+            document.addEventListener('click', function (e) {
+                if (e.target !== input && e.target !== list) {
+                    list.style.display = 'none';
+                }
+            });
+        }
+
+        function filterClientsView() {
+            const input = document.getElementById("clientSearchInput");
+            const filter = input.value.toLowerCase();
+            const cards = document.querySelectorAll('.client-card-wrapper');
+
+            cards.forEach(card => {
+                const name = card.dataset.clientName || '';
+                const phone = card.dataset.clientPhone || '';
+                const email = card.dataset.clientEmail || '';
+
+                const textContent = (name + ' ' + phone + ' ' + email).toLowerCase();
+
+                if (textContent.indexOf(filter) > -1) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function openEditAdminModal() {
+            const taskId = document.getElementById('evtId').value;
+            fetch(`/api/get_task/${taskId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('editAdminClientInput').value = data.data.client_name;
+                        document.getElementById('editAdminDate').value = data.data.date;
+                        document.getElementById('editAdminTime').value = data.data.time;
+                        document.getElementById('editAdminService').value = data.data.service_type;
+                        document.getElementById('editAdminNotes').value = data.data.notes;
+                        document.getElementById('formEditApptAdmin').action = `/edit_appointment/${taskId}`;
+                        modalActionAdmin.hide();
+                        new bootstrap.Modal(document.getElementById('modalEditAppointmentAdmin')).show();
+                        setupAutocomplete('editAdminClientInput', 'editAdminClientList');
+                    }
+                });
+        }
+
+        // Función para manejar clic en día del calendario individual del empleado
+        function handleAdminDateClick(info) {
+            if (!currentEmployeeId) return;
+
+            // Prellenar el modal con la fecha seleccionada y el empleado actual
+            document.getElementById('scheduleClientInput').value = '';
+            document.querySelector('#modalScheduleAppointment select[name="tech_id"]').value = currentEmployeeId;
+            document.querySelector('#modalScheduleAppointment input[name="date"]').value = info.dateStr;
+
+            // Abrir el modal de nueva cita
+            new bootstrap.Modal(document.getElementById('modalScheduleAppointment')).show();
+        }
+
+        // Función para manejar clic en día del calendario global
+        function handleAdminDateClickGlobal(info) {
+            // Prellenar el modal con la fecha seleccionada
+            document.getElementById('scheduleClientInput').value = '';
+            document.querySelector('#modalScheduleAppointment input[name="date"]').value = info.dateStr;
+
+            // Abrir el modal de nueva cita
+            new bootstrap.Modal(document.getElementById('modalScheduleAppointment')).show();
+        }
+
+        // Función para ver los detalles completos de una tarea
+        function viewTaskDetails() {
+            const taskId = document.getElementById('evtId').value;
+
+            fetch(`/api/task_details/${taskId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        const task = data.data;
+
+                        // Rellenar información básica
+                        document.getElementById('detailClient').textContent = task.client_name;
+                        document.getElementById('detailTech').textContent = task.tech_name;
+                        document.getElementById('detailDate').textContent = new Date(task.date).toLocaleDateString('es-ES');
+                        document.getElementById('detailStartTime').textContent = task.start_time || 'N/A';
+                        document.getElementById('detailEndTime').textContent = task.end_time || 'N/A';
+                        document.getElementById('detailService').textContent = task.service_type;
+                        document.getElementById('detailStatus').textContent = task.status;
+                        document.getElementById('detailDescription').textContent = task.description || 'Sin descripción';
+
+                        // Material/Stock
+                        if (task.stock_info) {
+                            document.getElementById('detailStockSection').style.display = 'block';
+                            const action = task.stock_info.action === 'used' ? 'USADO' : 'RETIRADO';
+                            document.getElementById('detailStock').textContent =
+                                `${action}: ${task.stock_info.quantity}x ${task.stock_info.item_name}`;
+                        } else {
+                            document.getElementById('detailStockSection').style.display = 'none';
+                        }
+
+                        // Notas adicionales
+                        if (task.parts_text) {
+                            document.getElementById('detailPartsSection').style.display = 'block';
+                            document.getElementById('detailParts').textContent = task.parts_text;
+                        } else {
+                            document.getElementById('detailPartsSection').style.display = 'none';
+                        }
+
+                        // Archivos adjuntos
+                        if (task.attachments && task.attachments.length > 0) {
+                            document.getElementById('detailAttachmentsSection').style.display = 'block';
+                            const attachmentsList = document.getElementById('detailAttachmentsList');
+                            attachmentsList.innerHTML = '';
+
+                            task.attachments.forEach(filename => {
+                                const item = document.createElement('a');
+                                item.href = `/uploads/${filename}`;
+                                item.target = '_blank';
+                                item.className = 'list-group-item list-group-item-action bg-black text-white border-secondary d-flex justify-content-between align-items-center';
+                                item.innerHTML = `
+                                    <span>
+                                        <i class="bi bi-file-earmark-arrow-down me-2"></i>
+                                        ${filename}
+                                    </span>
+                                    <i class="bi bi-download text-warning"></i>
+                                `;
+                                attachmentsList.appendChild(item);
+                            });
+                        } else {
+                            document.getElementById('detailAttachmentsSection').style.display = 'none';
+                        }
+
+                        // Configurar enlace de impresión
+                        document.getElementById('printReportLink').href = `/print_report/${taskId}`;
+
+                        // Cerrar el modal actual y abrir el de detalles
+                        modalActionAdmin.hide();
+                        new bootstrap.Modal(document.getElementById('modalTaskDetails')).show();
+                    } else {
+                        alert('Error al cargar los detalles: ' + data.msg);
+                    }
+                })
+                .catch(err => {
+                    console.error('Error:', err);
+                    alert('Error al cargar los detalles de la tarea');
+                });
+        }
+
+        // Modificar handleEventClick para mostrar indicador de archivos adjuntos
+        function handleEventClick(info) {
+            document.getElementById('evtId').value = info.event.id;
+            document.getElementById('evtClient').innerText = info.event.extendedProps.client;
+            document.getElementById('evtTech').innerText = info.event.extendedProps.tech_name;
+            document.getElementById('evtService').innerText = info.event.extendedProps.service_type;
+            document.getElementById('evtStatus').innerText = info.event.extendedProps.status;
+            document.getElementById('evtDesc').innerText = info.event.extendedProps.desc || 'Sin descripción';
+
+            // Mostrar indicador si hay archivos adjuntos
+            if (info.event.extendedProps.has_attachments) {
+                const attachmentsSection = document.getElementById('attachmentsSection');
+                attachmentsSection.style.display = 'block';
+                const attachmentsList = document.getElementById('attachmentsList');
+                attachmentsList.innerHTML = '<div class="alert alert-info small m-0"><i class="bi bi-paperclip me-1"></i> Esta tarea tiene archivos adjuntos. Haz clic en "Ver Detalles Completos" para acceder a ellos.</div>';
+            } else {
+                document.getElementById('attachmentsSection').style.display = 'none';
+            }
+
+            modalActionAdmin.show();
+        }
+
+        // ============================================================
+        // FUNCIONES DE ANALÍTICAS ADMIN
+        // ============================================================
+
+        let adminPieChart, adminLineChart, adminBarChart;
+        let adminAnalyticsData = null;
+
+        function loadAdminAnalytics() {
+            const techId = document.getElementById('analyticsTechSelector').value;
+            const period = document.getElementById('analyticsPeriodSelector').value;
+
+            if (!techId) {
+                document.getElementById('analyticsPlaceholder').style.display = 'block';
+                document.getElementById('analyticsContent').style.display = 'none';
+                return;
+            }
+
+            // Ocultar placeholder y mostrar contenido
+            document.getElementById('analyticsPlaceholder').style.display = 'none';
+            document.getElementById('analyticsContent').style.display = 'block';
+
+            // Mostrar indicadores de carga
+            document.getElementById('adminTotalServices').textContent = '...';
+            document.getElementById('adminTotalMaintenances').textContent = '...';
+            document.getElementById('adminTotalRevenue').textContent = '...';
+            document.getElementById('adminAvgTime').textContent = '...';
+
+            fetch(`/api/admin_analytics?tech_id=${techId}&period=${period}`)
+                .then(res => res.json())
+                .then(data => {
+                    adminAnalyticsData = data;
+                    updateAdminAnalyticsSummary(data);
+                    updateAdminServiceDistributionChart(data);
+                    updateAdminTimelineChart();
+                    updateAdminTopClients(data);
+                    updateAdminTopServicesChart(data);
+                })
+                .catch(err => {
+                    console.error('Error cargando analíticas:', err);
+                    alert('Error al cargar las analíticas');
+                });
+        }
+
+        function updateAdminAnalyticsSummary(data) {
+            document.getElementById('adminTotalServices').textContent = data.total_services || 0;
+            document.getElementById('adminTotalMaintenances').textContent = data.total_maintenances || 0;
+            document.getElementById('adminTotalRevenue').textContent = (data.total_revenue || 0).toLocaleString('es-ES') + '€';
+            document.getElementById('adminAvgTime').textContent = (data.avg_time || 0) + 'h';
+        }
+
+        function updateAdminServiceDistributionChart(data) {
+            const ctx = document.getElementById('adminServiceDistributionChart');
+
+            if (adminPieChart) {
+                adminPieChart.destroy();
+            }
+
+            const distribution = data.service_distribution || {};
+            const labels = Object.keys(distribution);
+            const values = Object.values(distribution);
+
+            const colors = [
+                '#f37021', '#4bc0c0', '#ff6384', '#36a2eb', '#ffcd56',
+                '#9966ff', '#ff9f40', '#4dc9f6', '#f67019', '#8549ba'
+            ];
+
+            adminPieChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: colors.slice(0, labels.length),
+                        borderColor: '#161616',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#ffffff',
+                                padding: 15,
+                                font: { size: 11 }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateAdminTimelineChart() {
+            const ctx = document.getElementById('adminTimelineChart');
+            const metric = document.getElementById('adminMetricSelector').value;
+
+            if (adminLineChart) {
+                adminLineChart.destroy();
+            }
+
+            if (!adminAnalyticsData || !adminAnalyticsData.timeline) {
+                return;
+            }
+
+            const timeline = adminAnalyticsData.timeline;
+            const labels = timeline.map(t => t.date);
+            let data, label, color;
+
+            if (metric === 'services') {
+                data = timeline.map(t => t.services);
+                label = 'Servicios Realizados';
+                color = '#4bc0c0';
+            } else if (metric === 'revenue') {
+                data = timeline.map(t => t.revenue);
+                label = 'Ingresos (€)';
+                color = '#36a2eb';
+            } else if (metric === 'maintenances') {
+                data = timeline.map(t => t.maintenances);
+                label = 'Mantenimientos';
+                color = '#ffcd56';
+            }
+
+            adminLineChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: label,
+                        data: data,
+                        borderColor: color,
+                        backgroundColor: color + '33',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#ffffff' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#aaaaaa' },
+                            grid: { color: '#333333' }
+                        },
+                        x: {
+                            ticks: { color: '#aaaaaa' },
+                            grid: { color: '#333333' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateAdminTopClients(data) {
+            const container = document.getElementById('adminTopClients');
+            const topClients = data.top_clients || [];
+
+            if (topClients.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-muted py-4">
+                        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                        No hay datos disponibles
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = topClients.map((client, index) => `
+                <div class="list-group-item bg-dark border-secondary text-white d-flex justify-content-between align-items-center mb-2">
+                    <div>
+                        <span class="badge bg-info me-2">${index + 1}</span>
+                        <strong>${client.name}</strong>
+                    </div>
+                    <span class="badge bg-warning text-dark">${client.count} servicios</span>
+                </div>
+            `).join('');
+        }
+
+        function updateAdminTopServicesChart(data) {
+            const ctx = document.getElementById('adminTopServicesChart');
+
+            if (adminBarChart) {
+                adminBarChart.destroy();
+            }
+
+            const topServices = data.top_services || {};
+            const labels = Object.keys(topServices);
+            const values = Object.values(topServices);
+
+            adminBarChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Cantidad',
+                        data: values,
+                        backgroundColor: '#f37021',
+                        borderColor: '#f37021',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: { color: '#aaaaaa' },
+                            grid: { color: '#333333' }
+                        },
+                        y: {
+                            ticks: { color: '#aaaaaa' },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        // ==================== GESTIÓN DE CATEGORÍAS DE STOCK ====================
+
+        function toggleParentSelect() {
+            const type = document.getElementById('categoryType').value;
+            const parentDiv = document.getElementById('parentCategoryDiv');
+            const parentSelect = document.getElementById('parentCategorySelect');
+
+            if (type === 'sub') {
+                parentDiv.style.display = 'block';
+                parentSelect.required = true;
+                loadMainCategoriesForParent();
+            } else {
+                parentDiv.style.display = 'none';
+                parentSelect.required = false;
+                parentSelect.value = '';
+            }
+        }
+
+        // Manejar envío del formulario de categorías con AJAX
+        document.getElementById('categoryForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const type = document.getElementById('categoryType').value;
+            const parentId = document.getElementById('parentCategorySelect').value;
+
+            if (type === 'sub' && !parentId) {
+                alert('Por favor, selecciona una categoría padre para la subcategoría');
+                return;
+            }
+
+            const formData = new FormData(this);
+            
+            fetch('/manage_stock_categories', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.msg || 'Categoría creada correctamente');
+                    loadCategoriesTree();
+                    bootstrap.Modal.getInstance(document.getElementById('modalAddCategory')).hide();
+                    this.reset();
+                    document.getElementById('parentCategoryDiv').style.display = 'none';
+                } else {
+                    alert('Error: ' + (data.msg || 'Error desconocido'));
+                }
+            })
+            .catch(err => {
+                console.error('Error:', err);
+                alert('Error al crear la categoría');
+            });
+        });
+
+        function loadMainCategoriesForParent() {
+            fetch('/api/stock_categories')
+                .then(res => res.json())
+                .then(data => {
+                    const select = document.getElementById('parentCategorySelect');
+                    select.innerHTML = '<option value="">-- Seleccionar --</option>';
+
+                    data.forEach(cat => {
+                        const option = document.createElement('option');
+                        option.value = cat.id;
+                        option.textContent = cat.name;
+                        select.appendChild(option);
+                    });
+                })
+                .catch(err => console.error('Error cargando categorías:', err));
+        }
+
+        function loadCategoriesTree() {
+            fetch('/api/stock_categories')
+                .then(res => res.json())
+                .then(data => {
+                    updateCategoriesTreeView(data);
+                    updateCategorySelectors(data);
+                })
+                .catch(err => {
+                    console.error('Error:', err);
+                    document.getElementById('categoriesTree').innerHTML =
+                        '<div class="text-center text-danger py-3"><i class="bi bi-exclamation-triangle me-2"></i>Error cargando categorías</div>';
+                });
+        }
+
+        function updateCategoriesTreeView(categories) {
+            const container = document.getElementById('categoriesTree');
+            if (!container) return;
+
+            if (categories.length === 0) {
+                container.innerHTML = '<div class="text-center text-muted py-3"><i class="bi bi-inbox me-2"></i>No hay categorías creadas</div>';
+                return;
+            }
+
+            let html = '<div class="list-group">';
+            categories.forEach(cat => {
+                html += buildCategoryTreeHTML(cat, 0);
+            });
+            html += '</div>';
+
+            container.innerHTML = html;
+        }
+
+        function buildCategoryTreeHTML(cat, level) {
+            const indent = level * 20;
+            const hasChildren = cat.children && cat.children.length > 0;
+            const icon = hasChildren ? 'folder-fill' : 'folder2';
+            const itemCount = cat.items ? cat.items.length : 0;
+
+            let html = `
+                <div class="list-group-item bg-dark border-secondary mb-2" style="margin-left: ${indent}px;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="bi bi-${icon} text-warning me-2"></i>
+                            <strong class="text-white">${cat.name}</strong>
+                            <span class="badge bg-info ms-2">${itemCount} productos</span>
+                        </div>
+                        <div>
+                            <button class="btn btn-sm btn-outline-success me-1" onclick="addSubcategoryTo(${cat.id}, '${cat.name}')" title="Añadir subcategoría">
+                                <i class="bi bi-plus-circle"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteCategory(${cat.id}, '${cat.name}', ${itemCount})" title="Eliminar">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            if (hasChildren) {
+                cat.children.forEach(child => {
+                    html += buildCategoryTreeHTML(child, level + 1);
+                });
+            }
+
+            return html;
+        }
+
+        function addSubcategoryTo(parentId, parentName) {
+            document.getElementById('categoryType').value = 'sub';
+            toggleParentSelect();
+
+            // ✅ CORRECCIÓN: preseleccionar después de que loadMainCategoriesForParent termine
+            fetch('/api/stock_categories')
+                .then(res => res.json())
+                .then(data => {
+                    const select = document.getElementById('parentCategorySelect');
+                    select.innerHTML = '<option value="">-- Seleccionar --</option>';
+                    data.forEach(cat => {
+                        const opt = document.createElement('option');
+                        opt.value = cat.id;
+                        opt.textContent = cat.name;
+                        select.appendChild(opt);
+                    });
+                    select.value = String(parentId); // preseleccionar correctamente
+                })
+                .catch(err => console.error('Error cargando categorías padre:', err));
+
+            const modal = new bootstrap.Modal(document.getElementById('modalAddCategory'));
+            modal.show();
+            document.getElementById('categoryName').placeholder = `Nueva subcategoría de ${parentName}`;
+        }
+
+        // ✅ NUEVO: Cargar categorías cuando se abre el modal de añadir stock
+        document.getElementById('modalAddStock').addEventListener('show.bs.modal', function () {
+            loadCategoriesIntoAddStockSelect();
+        });
+
+        function loadCategoriesIntoAddStockSelect() {
+            fetch('/api/stock_categories')
+                .then(res => res.json())
+                .then(data => {
+                    const select = document.getElementById('addStockCategory');
+                    select.innerHTML = '<option value="">-- Seleccionar Categoría --</option>';
+                    addCategoryOptionsToSelect(select, data);
+                    // Ocultar subcategoría al recargar
+                    document.getElementById('subcategorySection').style.display = 'none';
+                    document.getElementById('addStockSubcategory').innerHTML = '<option value="">-- Sin subcategoría --</option>';
+                })
+                .catch(err => console.error('Error cargando categorías en modal:', err));
+        }
+
+        // ✅ NUEVO: Manejador AJAX del formulario de añadir stock
+        document.getElementById('formAddStock').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnAddStockSubmit');
+            const alertDiv = document.getElementById('addStockAlert');
+
+            // Validación básica frontend
+            const name = document.getElementById('addStockName').value.trim();
+            const catId = document.getElementById('addStockCategory').value;
+            if (!name) {
+                alertDiv.className = 'alert alert-danger';
+                alertDiv.textContent = 'El nombre del producto es obligatorio';
+                alertDiv.classList.remove('d-none');
+                return;
+            }
+            if (!catId) {
+                alertDiv.className = 'alert alert-danger';
+                alertDiv.textContent = 'Debes seleccionar una categoría';
+                alertDiv.classList.remove('d-none');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Añadiendo...';
+
+            const formData = new FormData(this);
+            formData.append('action', 'add');
+
+            fetch('/manage_stock', { method: 'POST', body: formData })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        alertDiv.className = 'alert alert-success';
+                        alertDiv.textContent = data.msg;
+                        alertDiv.classList.remove('d-none');
+                        this.reset();
+                        document.getElementById('subcategorySection').style.display = 'none';
+                        loadStockTree();
+                        loadCategoriesIntoAddStockSelect();
+                        setTimeout(() => {
+                            bootstrap.Modal.getInstance(document.getElementById('modalAddStock')).hide();
+                            alertDiv.classList.add('d-none');
+                        }, 1200);
+                    } else {
+                        alertDiv.className = 'alert alert-danger';
+                        alertDiv.textContent = 'Error: ' + (data.msg || 'Error desconocido');
+                        alertDiv.classList.remove('d-none');
+                    }
+                })
+                .catch(err => {
+                    console.error('Error:', err);
+                    alertDiv.className = 'alert alert-danger';
+                    alertDiv.textContent = 'Error de conexión al añadir el producto';
+                    alertDiv.classList.remove('d-none');
+                })
+                .finally(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="bi bi-plus-circle-fill me-1"></i>Añadir Producto';
+                });
+        });
+
+        function deleteCategory(id, name, itemCount) {
+            if (itemCount > 0) {
+                if (!confirm(`La categoría "${name}" tiene ${itemCount} productos. ¿Estás seguro de eliminarla? Los productos NO se eliminarán.`)) {
+                    return;
+                }
+            } else {
+                if (!confirm(`¿Eliminar la categoría "${name}"?`)) {
+                    return;
+                }
+            }
+
+            const formData = new FormData();
+            formData.append('action', 'delete');
+            formData.append('category_id', id);
+
+            fetch('/manage_stock_categories', {
+                method: 'POST',
+                body: formData
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        loadCategoriesTree();
+                        alert('Categoría eliminada correctamente');
+                    } else {
+                        alert('Error al eliminar: ' + (data.msg || 'Error desconocido'));
+                    }
+                })
+                .catch(err => {
+                    console.error('Error:', err);
+                    alert('Error al eliminar categoría');
+                });
+        }
+
+        function updateCategorySelectors(categories) {
+            // Actualizar selector en modal de añadir stock
+            const addStockSelect = document.getElementById('addStockCategory');
+            if (addStockSelect) {
+                addStockSelect.innerHTML = '<option value="">-- Seleccionar Categoría --</option>';
+                addCategoryOptionsToSelect(addStockSelect, categories);
+            }
+        }
+
+        function addCategoryOptionsToSelect(select, categories, prefix = '') {
+            categories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat.id;
+                option.textContent = prefix + cat.name;
+                option.dataset.hasChildren = cat.children && cat.children.length > 0;
+                select.appendChild(option);
+
+                // No añadir subcategorías aquí, se cargarán dinámicamente
+            });
+        }
+
+        function loadSubcategories(categoryId, targetSelectId) {
+            const subcategorySection = document.getElementById('subcategorySection');
+            const subcategorySelect = document.getElementById(targetSelectId);
+
+            if (!categoryId) {
+                subcategorySection.style.display = 'none';
+                return;
+            }
+
+            fetch('/api/stock_categories')
+                .then(res => res.json())
+                .then(data => {
+                    const category = findCategoryById(data, parseInt(categoryId));
+
+                    if (category && category.children && category.children.length > 0) {
+                        subcategorySection.style.display = 'block';
+                        subcategorySelect.innerHTML = '<option value="">-- Sin subcategoría --</option>';
+
+                        category.children.forEach(sub => {
+                            const option = document.createElement('option');
+                            option.value = sub.id;
+                            option.textContent = sub.name;
+                            subcategorySelect.appendChild(option);
+                        });
+                    } else {
+                        subcategorySection.style.display = 'none';
+                        subcategorySelect.innerHTML = '<option value="">-- Sin subcategoría --</option>';
+                    }
+                })
+                .catch(err => console.error('Error cargando subcategorías:', err));
+        }
+
+        function findCategoryById(categories, id) {
+            for (let cat of categories) {
+                if (cat.id === id) return cat;
+                if (cat.children) {
+                    const found = findCategoryById(cat.children, id);
+                    if (found) return found;
+                }
+            }
+            return null;
+        }
+
+        // ==================== FUNCIONES DE SOPORTE TÉCNICO ====================
+
+        // ==================== GOOGLE MAPS ====================
+
+        document.getElementById('clientAddress')?.addEventListener('input', function () {
+            const address = this.value.trim();
+            const link = document.getElementById('openGoogleMaps');
+
+            if (address) {
+                const encoded = encodeURIComponent(address);
+                link.href = `https://www.google.com/maps/search/?api=1&query=${encoded}`;
+                link.style.display = 'block';
+            } else {
+                link.style.display = 'none';
+            }
+        });
+
+        // ==================== ESTADÍSTICAS GLOBALES ====================
+
+        let taskTypesPieChart = null;
+
+        function loadAdminStatistics() {
+            const techId = document.getElementById('statsFilterTech').value;
+            const period = document.getElementById('statsFilterPeriod').value;
+
+            let url = '/api/admin_analytics?';
+            if (techId) url += `tech_id=${techId}&`;
+            if (period) url += `period=${period}`;
+
+            fetch(url)
+                .then(res => res.json())
+                .then(response => {
+                    if (response.success) {
+                        const data = response.data;
+
+                        // Actualizar KPIs
+                        document.getElementById('kpiTotalTasks').textContent = data.total_tasks;
+                        document.getElementById('kpiCompletedTasks').textContent = data.completed_tasks;
+                        document.getElementById('kpiPendingTasks').textContent = data.pending_tasks;
+                        document.getElementById('kpiActiveTechs').textContent = data.active_technicians;
+
+                        // Crear gráfico circular de tipos de tareas
+                        createTaskTypesPieChart(data.task_types);
+                    } else {
+                        alert('Error al cargar estadísticas: ' + response.msg);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al conectar con el servidor');
+                });
+        }
+
+        function createTaskTypesPieChart(taskTypes) {
+            const canvas = document.getElementById('taskTypesPieChart');
+            const noDataDiv = document.getElementById('noPieData');
+
+            // Si no hay datos
+            if (!taskTypes || Object.keys(taskTypes).length === 0) {
+                canvas.style.display = 'none';
+                noDataDiv.style.display = 'block';
+                return;
+            }
+
+            canvas.style.display = 'block';
+            noDataDiv.style.display = 'none';
+
+            // Preparar datos
+            const labels = [];
+            const counts = [];
+            const colors = [];
+
+            for (const [name, info] of Object.entries(taskTypes)) {
+                labels.push(name);
+                counts.push(info.count);
+                colors.push(info.color);
+            }
+
+            // Destruir gráfico anterior si existe
+            if (taskTypesPieChart) {
+                taskTypesPieChart.destroy();
+            }
+
+            // Crear nuevo gráfico
+            const ctx = canvas.getContext('2d');
+            taskTypesPieChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: counts,
+                        backgroundColor: colors,
+                        borderColor: '#1e1e1e',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#fff',
+                                padding: 15,
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed || 0;
+                                    const percentage = taskTypes[label].percentage || 0;
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+
+        // ==================== INICIALIZACIÓN ====================
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Cargar categorías al inicio
+            loadCategoriesTree();
+
+            // Recargar cuando se abre el modal de añadir stock
+            const modalAddStock = document.getElementById('modalAddStock');
+            if (modalAddStock) {
+                modalAddStock.addEventListener('show.bs.modal', function () {
+                    loadCategoriesTree();
+                });
+            }
+        });
+
+
+        // ==================== ANALÍTICAS POR TÉCNICO ====================
+
+        function viewTechStats(techId) {
+            const modal = new bootstrap.Modal(document.getElementById('modalTechStats'));
+            modal.show();
+
+            document.getElementById('techStatsContent').innerHTML = `
+                <div class="text-center text-muted py-5">
+                    <div class="spinner-border text-warning" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p class="mt-3">Cargando estadísticas...</p>
+                </div>
+            `;
+
+            fetch(`/api/tech_stats/${techId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        displayTechStats(data.data);
+                    } else {
+                        document.getElementById('techStatsContent').innerHTML = `
+                            <div class="alert alert-danger">
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                Error al cargar las estadísticas
+                            </div>
+                        `;
+                    }
+                })
+                .catch(err => {
+                    console.error('Error:', err);
+                    document.getElementById('techStatsContent').innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            Error de conexión
+                        </div>
+                    `;
+                });
+        }
+
+        function displayTechStats(data) {
+            const container = document.getElementById('techStatsContent');
+
+            let html = `
+                <div class="mb-4">
+                    <h5 class="text-white fw-bold">
+                        <i class="bi bi-person-circle me-2 text-warning"></i>
+                        ${data.tech_name}
+                    </h5>
+                </div>
+                
+                <div class="row g-3 mb-4">
+                    <div class="col-6">
+                        <div class="card bg-dark border-secondary p-3 text-center">
+                            <h3 class="text-success fw-bold mb-0">${data.total_completed}</h3>
+                            <small class="text-muted">Servicios Completados</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card bg-dark border-secondary p-3 text-center">
+                            <h3 class="text-info fw-bold mb-0">${data.total_hours}h</h3>
+                            <small class="text-muted">Horas Trabajadas</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card bg-dark border-secondary p-3">
+                    <h6 class="text-white fw-bold mb-3">
+                        <i class="bi bi-bar-chart me-2"></i>Desglose por Tipo de Servicio
+                    </h6>
+            `;
+
+            for (const [serviceName, serviceData] of Object.entries(data.service_breakdown)) {
+                html += `
+                    <div class="mb-3 pb-3 border-bottom border-secondary">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <strong class="text-warning">${serviceName}</strong>
+                            <span class="badge bg-info">${serviceData.count} servicios</span>
+                        </div>
+                        <div class="small text-muted">
+                            ${serviceData.tasks.slice(0, 3).map(task => `
+                                <div class="d-flex justify-content-between py-1">
+                                    <span>${task.client}</span>
+                                    <span>${task.date}</span>
+                                </div>
+                            `).join('')}
+                            ${serviceData.tasks.length > 3 ? `<div class="text-center pt-2"><small>... y ${serviceData.tasks.length - 3} más</small></div>` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+
+        // ==================== VISTA JERÁRQUICA DE STOCK ====================
+
+        function loadStockTree() {
+            const container = document.getElementById('stockCategoriesTree');
+            container.innerHTML = '<div class="text-center text-muted py-3"><i class="bi bi-hourglass-split"></i> Cargando...</div>';
+
+            fetch('/api/stock_categories')
+                .then(res => res.json())
+                .then(data => {
+                    updateStockTreeView(data);
+                })
+                .catch(err => {
+                    console.error('Error:', err);
+                    container.innerHTML = `
+                        <div class="text-center text-danger py-3">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            Error cargando inventario
+                        </div>
+                    `;
+                });
+        }
+
+        function updateStockTreeView(categories) {
+            const container = document.getElementById('stockCategoriesTree');
+
+            if (categories.length === 0) {
+                container.innerHTML = '<div class="text-center text-muted py-3"><i class="bi bi-inbox me-2"></i>No hay categorías creadas</div>';
+                return;
+            }
+
+            let html = '<div class="list-group">';
+            categories.forEach(cat => {
+                html += buildStockCategoryTreeHTML(cat, 0);
+            });
+            html += '</div>';
+
+            container.innerHTML = html;
+        }
+
+        function buildStockCategoryTreeHTML(cat, level) {
+            const indent = level * 20;
+            const hasChildren = cat.children && cat.children.length > 0;
+            const hasItems = cat.items && cat.items.length > 0;
+            const icon = hasChildren ? 'folder-fill' : 'folder2';
+            const itemCount = cat.items ? cat.items.length : 0;
+            const categoryId = `cat_${cat.id}_${level}`;
+            const itemsId = `items_${cat.id}_${level}`;
+
+            let html = `
+                <div class="list-group-item bg-dark border-secondary mb-2" style="margin-left: ${indent}px;">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="flex-grow-1">
+                            ${(hasChildren || hasItems) ? `
+                                <button class="btn btn-sm btn-link text-white p-0 me-2" 
+                                        onclick="toggleStockSection('${categoryId}', '${itemsId}', this)"
+                                        title="Expandir/Colapsar">
+                                    <i class="bi bi-chevron-right" id="icon_${categoryId}" style="transition: transform 0.3s;"></i>
+                                </button>
+                            ` : ''}
+                            <i class="bi bi-${icon} text-warning me-2"></i>
+                            <strong class="text-white">${cat.name}</strong>
+                            <span class="badge bg-info ms-2">${itemCount} productos</span>
+                        </div>
+                        <div>
+                            <button class="btn btn-sm btn-outline-warning me-1" 
+                                    onclick="openEditCategoryModal(${cat.id}, '${cat.name.replace(/'/g, "\\'")}', ${cat.parent_id || 'null'})"
+                                    title="Editar categoría">
+                                <i class="bi bi-pencil-fill"></i>
+                            </button>
+                        </div>
+                    </div>
+            `;
+
+            // Productos de esta categoría
+            if (hasItems) {
+                html += `<div id="${itemsId}" class="mt-2" style="margin-left: 30px; display: none;">`;
+                cat.items.forEach(item => {
+                    const stockBadgeClass = item.quantity <= item.min_stock ? 'bg-danger' : 'bg-success';
+                    const supplierText = item.supplier ? `<small class="text-muted">(${item.supplier})</small>` : '';
+                    html += `
+                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom border-secondary">
+                            <div>
+                                <i class="bi bi-box text-info me-2"></i>
+                                <span class="text-white">${item.name}</span> ${supplierText}
+                                <span class="badge ${stockBadgeClass} ms-2">${item.quantity}</span>
+                                ${item.min_stock ? `<small class="text-muted">(Min: ${item.min_stock})</small>` : ''}
+                            </div>
+                            <div>
+                                <button class="btn btn-sm btn-outline-success me-1" 
+                                        onclick="ajustarStock(${item.id}, '${item.name.replace(/'/g, "\\'")}', ${item.quantity})"
+                                        title="Ajustar cantidad">
+                                    <i class="bi bi-arrow-repeat"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-warning me-1" 
+                                        onclick="openEditStockItemModal(${item.id})"
+                                        title="Editar artículo">
+                                    <i class="bi bi-pencil-fill"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" 
+                                        onclick="deleteStockItem(${item.id}, '${item.name.replace(/'/g, "\\'")}')">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+
+            html += '</div>';
+
+            // Subcategorías
+            if (hasChildren) {
+                html += `<div id="${categoryId}" style="display: none;">`;
+                cat.children.forEach(child => {
+                    html += buildStockCategoryTreeHTML(child, level + 1);
+                });
+                html += '</div>';
+            }
+
+            return html;
+        }
+
+        // Función para expandir/colapsar secciones de stock
+        function toggleStockSection(categoryId, itemsId, button) {
+            const categoryDiv = document.getElementById(categoryId);
+            const itemsDiv = document.getElementById(itemsId);
+            const icon = document.getElementById('icon_' + categoryId);
+
+            // Alternar visibilidad
+            if (categoryDiv) {
+                const isHidden = categoryDiv.style.display === 'none';
+                categoryDiv.style.display = isHidden ? 'block' : 'none';
+            }
+
+            if (itemsDiv) {
+                const isHidden = itemsDiv.style.display === 'none';
+                itemsDiv.style.display = isHidden ? 'block' : 'none';
+            }
+
+            // Rotar icono
+            if (icon) {
+                if (icon.style.transform === 'rotate(90deg)') {
+                    icon.style.transform = 'rotate(0deg)';
+                } else {
+                    icon.style.transform = 'rotate(90deg)';
+                }
+            }
+        }
+
+        function deleteStockItem(itemId, itemName) {
+            if (!confirm(`¿Eliminar el producto "${itemName}"?`)) return;
+
+            const formData = new FormData();
+            formData.append('action', 'delete');
+            formData.append('item_id', itemId);
+
+            fetch('/manage_stock', {
+                method: 'POST',
+                body: formData
+            })
+                .then(() => {
+                    loadStockTree();
+                    alert('Producto eliminado correctamente');
+                })
+                .catch(err => {
+                    console.error('Error:', err);
+                    alert('Error al eliminar el producto');
+                });
+        }
+
+        // Event listeners para cargar stock tree y categories tree al abrir las pestañas
+        document.addEventListener('DOMContentLoaded', function () {
+            const stockTabButton = document.querySelector('button[data-bs-target="#stock"]');
+            if (stockTabButton) {
+                stockTabButton.addEventListener('click', function () {
+                    setTimeout(() => loadStockTree(), 100);
+                });
+            }
+
+            const configTabButton = document.querySelector('button[data-bs-target="#config"]');
+            if (configTabButton) {
+                configTabButton.addEventListener('click', function () {
+                    setTimeout(() => loadCategoriesTree(), 100);
+                });
+            }
+        });
+
+        // ==================== GESTIÓN DE STOCK MEJORADA ====================
+
+        document.getElementById('modalAddStock').addEventListener('show.bs.modal', function () {
+            loadCategoriesForStockForm('addStock');
+        });
+
+        function loadCategoriesForStockForm(prefix) {
+            const select = document.getElementById(prefix + 'Category');
+            if (!select) return;
+
+            select.innerHTML = '<option value="">Cargando...</option>';
+
+            fetch('/api/stock_categories')
+                .then(res => res.json())
+                .then(categories => {
+                    let options = '<option value="">-- Seleccionar --</option>';
+
+                    function addCategories(cats, pref = '') {
+                        cats.forEach(cat => {
+                            options += `<option value="${cat.id}">${pref}${cat.name}</option>`;
+                            if (cat.children && cat.children.length > 0) {
+                                addCategories(cat.children, pref + '→ ');
+                            }
+                        });
+                    }
+
+                    addCategories(categories);
+                    select.innerHTML = options;
+                });
+        }
+
+        function editStockItem(itemId) {
+            fetch(`/api/stock_item/${itemId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        const item = data.data;
+
+                        // Crear modal si no existe
+                        let modal = document.getElementById('modalEditStockComplete');
+                        if (!modal) {
+                            const modalHTML = `
+                                <div class="modal fade" id="modalEditStockComplete" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content bg-dark text-white">
+                                            <div class="modal-header border-secondary">
+                                                <h5 class="modal-title"><i class="bi bi-pencil-square me-2"></i>Editar Artículo</h5>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <form id="formEditStockComplete">
+                                                <div class="modal-body">
+                                                    <input type="hidden" id="editStockIdComplete">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Nombre *</label>
+                                                        <input type="text" id="editStockNameComplete" class="form-control" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Categoría *</label>
+                                                        <select id="editStockCategoryComplete" class="form-select" required></select>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6 mb-3">
+                                                            <label class="form-label">Stock Actual</label>
+                                                            <input type="number" id="editStockQtyComplete" class="form-control" readonly>
+                                                            <small class="text-muted">Use Ajustar para modificar</small>
+                                                        </div>
+                                                        <div class="col-md-6 mb-3">
+                                                            <label class="form-label">Stock Mínimo *</label>
+                                                            <input type="number" id="editStockMinComplete" class="form-control" required min="1">
+                                                        </div>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Proveedor *</label>
+                                                        <input type="text" id="editStockSupplierComplete" class="form-control" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Descripción</label>
+                                                        <textarea id="editStockDescComplete" class="form-control" rows="2"></textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer border-secondary">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                    <button type="submit" class="btn btn-warning"><i class="bi bi-check-circle me-1"></i>Guardar</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+                            // Añadir event listener al formulario
+                            document.getElementById('formEditStockComplete').addEventListener('submit', function (e) {
+                                e.preventDefault();
+
+                                const formData = new FormData();
+                                formData.append('action', 'edit');
+                                formData.append('item_id', document.getElementById('editStockIdComplete').value);
+                                formData.append('name', document.getElementById('editStockNameComplete').value);
+                                formData.append('min_stock', document.getElementById('editStockMinComplete').value);
+                                formData.append('supplier', document.getElementById('editStockSupplierComplete').value);
+                                formData.append('category_id', document.getElementById('editStockCategoryComplete').value);
+
+                                fetch('/manage_stock', {
+                                    method: 'POST',
+                                    body: formData
+                                })
+                                    .then(res => res.json())
+                                    .then(data => {
+                                        if (data.success) {
+                                            bootstrap.Modal.getInstance(document.getElementById('modalEditStockComplete')).hide();
+                                            loadStockTree();
+                                            alert('✓ Artículo actualizado');
+                                        } else {
+                                            alert('Error: ' + data.msg);
+                                        }
+                                    });
+                            });
+                        }
+
+                        // Rellenar datos
+                        document.getElementById('editStockIdComplete').value = item.id;
+                        document.getElementById('editStockNameComplete').value = item.name;
+                        document.getElementById('editStockQtyComplete').value = item.quantity;
+                        document.getElementById('editStockMinComplete').value = item.min_stock;
+                        document.getElementById('editStockSupplierComplete').value = item.supplier || '';
+                        document.getElementById('editStockDescComplete').value = item.description || '';
+
+                        // Cargar categorías
+                        const select = document.getElementById('editStockCategoryComplete');
+                        fetch('/api/stock_categories')
+                            .then(res => res.json())
+                            .then(categories => {
+                                let options = '<option value="">-- Seleccionar --</option>';
+                                function addCats(cats, pref = '') {
+                                    cats.forEach(cat => {
+                                        const sel = cat.id == item.category_id ? 'selected' : '';
+                                        options += `<option value="${cat.id}" ${sel}>${pref}${cat.name}</option>`;
+                                        if (cat.children && cat.children.length > 0) {
+                                            addCats(cat.children, pref + '→ ');
+                                        }
+                                    });
+                                }
+                                addCats(categories);
+                                select.innerHTML = options;
+                            });
+
+                        new bootstrap.Modal(document.getElementById('modalEditStockComplete')).show();
+                    }
+                });
+        }
+
+        // Actualizar calendario después de agendar
+        const formSchedule = document.querySelector('#modalScheduleAppointment form');
+        if (formSchedule && !formSchedule.hasAttribute('data-enhanced')) {
+            formSchedule.setAttribute('data-enhanced', 'true');
+            formSchedule.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                fetch('/schedule_appointment', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            bootstrap.Modal.getInstance(document.getElementById('modalScheduleAppointment')).hide();
+                            if (window.calendarGlobalInstance) window.calendarGlobalInstance.refetchEvents();
+                            if (window.calendar) window.calendar.refetchEvents();
+                            alert('✓ Cita agendada');
+                            this.reset();
+                            location.reload();
+                        }
+                    });
+            });
+        }
+
+        // FUNCIÓN PARA MOSTRAR ARCHIVOS ADJUNTOS EN INFORMES
+        function showAttachmentsModal(taskId, clientName) {
+            const container = document.getElementById('attachmentsListContainer');
+            container.innerHTML = '<div class="text-center text-muted py-3"><i class="bi bi-hourglass-split me-2"></i>Cargando archivos...</div>';
+            document.getElementById('attachModalClient').innerText = clientName;
+
+            // Abrir modal inmediatamente mientras carga
+            const modal = new bootstrap.Modal(document.getElementById('modalAttachments'));
+            modal.show();
+
+            fetch(`/api/task/${taskId}/attachments`)
+                .then(function(res) {
+                    if (!res.ok) throw new Error('Error ' + res.status);
+                    return res.json();
+                })
+                .then(function(data) {
+                    if (!data.success || !data.attachments || data.attachments.length === 0) {
+                        container.innerHTML = '<div class="text-center text-muted py-4"><i class="bi bi-inbox fs-1 d-block mb-2"></i>No hay archivos adjuntos</div>';
+                        return;
+                    }
+
+                    let html = '';
+                    data.attachments.forEach(function(att) {
+                        // Soportar formato string o {filename, original_name, size}
+                        var filename = typeof att === 'object' ? (att.filename || att.name || att) : att;
+                        var originalName = typeof att === 'object' ? (att.original_name || att.name || filename) : att;
+                        var sizeKB = (att.size && att.size > 0) ? (att.size / 1024).toFixed(1) + ' KB' : '';
+
+                        // Escapar comillas para uso seguro en onclick
+                        var safeFilename = filename.replace(/'/g, "\\'");
+                        var safeName = originalName.replace(/'/g, "\\'");
+
+                        html += `
+                            <div class="d-flex justify-content-between align-items-center p-3 mb-2 rounded"
+                                 style="background:#1f1f1f; border:1px solid #444;">
+                                <div>
+                                    <i class="bi bi-file-earmark-fill text-info me-2"></i>
+                                    <strong class="text-white">${originalName}</strong>
+                                    ${sizeKB ? '<br><small class="text-muted ms-4">' + sizeKB + '</small>' : ''}
+                                </div>
+                                <div class="d-flex gap-2 ms-3">
+                                    <a href="/uploads/${filename}" target="_blank" rel="noopener noreferrer"
+                                       class="btn btn-sm btn-info">
+                                        <i class="bi bi-eye me-1"></i>Ver
+                                    </a>
+                                    <a href="/uploads/${filename}" download="${originalName}"
+                                       class="btn btn-sm btn-success">
+                                        <i class="bi bi-download me-1"></i>Descargar
+                                    </a>
+                                </div>
+                            </div>`;
+                    });
+                    container.innerHTML = html;
+                })
+                .catch(function(err) {
+                    container.innerHTML = '<div class="text-center text-danger py-3"><i class="bi bi-exclamation-triangle me-2"></i>Error al cargar archivos: ' + err.message + '</div>';
+                });
+        }
+
+        // Ver archivo en nueva pestaña
+        function viewFile(url, filename, evt) {
+            if (evt) evt.preventDefault();
+            window.open(url, '_blank', 'noopener,noreferrer');
+        }
+
+        // Descargar archivo directamente sin fetch HEAD previo
+        function downloadFile(url, filename, evt) {
+            if (evt) evt.preventDefault();
+            var link = document.createElement('a');
+            link.href = url;
+            link.download = filename || 'archivo';
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+    </script>
+</body>
+
+</html>

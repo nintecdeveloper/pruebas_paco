@@ -1,0 +1,2900 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>OSLAPRINT | Panel Técnico</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --osla-orange: #f37021;
+            --osla-dark: #0a0a0a;
+            --osla-card: #161616;
+        }
+
+        body {
+            background-color: var(--osla-dark);
+            color: #fff;
+            font-family: 'Segoe UI', sans-serif;
+            padding-bottom: 80px;
+        }
+
+        .navbar {
+            background: #000;
+            border-bottom: 2px solid var(--osla-orange);
+        }
+
+        /* Prevent iOS zoom on inputs */
+        .form-control,
+        .form-select {
+            background: #000 !important;
+            border: 1px solid #444 !important;
+            color: #fff !important;
+            font-size: 16px !important;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--osla-orange);
+            box-shadow: none;
+        }
+
+        .text-muted {
+            color: #d1d1d1 !important;
+        }
+
+        .text-secondary {
+            color: #bcbcbc !important;
+        }
+
+        .form-label,
+        label {
+            color: #f8f9fa !important;
+            font-weight: 500;
+        }
+
+        .small,
+        small {
+            color: #e0e0e0 !important;
+        }
+
+        .fc-event {
+            cursor: pointer;
+        }
+
+        .menu-card {
+            background: var(--osla-card);
+            border: 2px solid #222;
+            border-radius: 20px;
+            padding: 25px;
+            cursor: pointer;
+            transition: 0.3s;
+            text-align: center;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .menu-card:hover {
+            border-color: var(--osla-orange);
+            transform: translateY(-5px);
+            background: #1f1f1f;
+        }
+
+        .btn-osla {
+            background: var(--osla-orange);
+            color: white;
+            border: none;
+            font-weight: bold;
+            padding: 12px;
+            width: 100%;
+            border-radius: 8px;
+            font-size: 1.1rem;
+        }
+
+        #calendar {
+            background: #fff;
+            color: #333;
+            padding: 10px;
+            border-radius: 10px;
+            min-height: 620px;
+        }
+
+        /* Task List Styles */
+        .task-list-container {
+            max-height: 580px;
+            overflow-y: auto;
+        }
+
+        .task-item {
+            background: #1f1f1f;
+            border-left: 4px solid #444;
+            padding: 7px 10px;
+            margin-bottom: 6px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            font-size: 0.82rem;
+        }
+
+        .task-item:hover {
+            background: #2a2a2a;
+        }
+
+        .task-item.status-Completado {
+            border-left-color: #198754;
+            opacity: 0.7;
+        }
+
+        .task-item.status-Pendiente {
+            border-left-color: var(--osla-orange);
+        }
+
+        /* Autocomplete Styles */
+        .suggestions-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            background: #1f1f1f;
+            border: 1px solid #444;
+            border-radius: 0 0 8px 8px;
+            z-index: 1050;
+            display: none;
+        }
+
+        .suggestion-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #333;
+            color: #fff;
+        }
+
+        .suggestion-item:hover {
+            background: var(--osla-orange);
+            color: white;
+        }
+
+        /* File upload area */
+        .file-upload-area {
+            border: 2px dashed #666;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            background: #161616;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .file-upload-area:hover {
+            border-color: var(--osla-orange);
+            background: #1f1f1f;
+        }
+
+        .file-upload-area.drag-over {
+            border-color: var(--osla-orange);
+            background: #2a2a2a;
+        }
+
+        .file-list {
+            margin-top: 10px;
+        }
+
+        .file-item {
+            background: #1f1f1f;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .file-item .remove-file {
+            color: #dc3545;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        /* Mobile adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding-left: 15px;
+                padding-right: 15px;
+            }
+
+            .fc-toolbar {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .fc-toolbar-title {
+                font-size: 1.2rem !important;
+            }
+        }
+
+        /* Firma Digital */
+        .signature-container {
+            background: #fff;
+            border: 2px dashed #f37021;
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .signature-canvas {
+            width: 100%;
+            height: 200px;
+            background: white;
+            touch-action: none;
+            cursor: crosshair;
+            border-radius: 4px;
+        }
+
+        /* Archivos */
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        .file-item .remove-file {
+            color: #dc3545;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .file-item .remove-file:hover {
+            color: #ff4d4d;
+        }
+
+        #fileUploadArea.drag-over {
+            border-color: var(--osla-orange);
+            background-color: rgba(243, 112, 33, 0.1);
+        }
+
+        /* Filtros Calendario */
+        .btn-check:checked + .btn-outline-custom {
+            color: white !important;
+            background-color: var(--osla-orange) !important;
+            border-color: var(--osla-orange) !important;
+            border-width: 2px;
+            opacity: 1;
+            font-weight: 700;
+            box-shadow: 0 0 10px rgba(243, 112, 33, 0.5);
+        }
+
+        .btn-outline-custom {
+            color: #bbb;
+            border-color: #555;
+            background-color: transparent;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-custom:hover {
+            opacity: 1;
+            filter: brightness(1.2);
+            background-color: rgba(243, 112, 33, 0.2);
+            border-color: var(--osla-orange);
+        }
+
+        .filter-group {
+            background: #1f1f1f;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #333;
+        }
+
+        /* Toast notificaciones */
+        #toastContainer {
+            position: fixed;
+            top: 75px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .osla-toast {
+            background: #1f1f1f;
+            border-left: 4px solid var(--osla-orange);
+            color: #fff;
+            padding: 12px 18px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            font-size: 0.95rem;
+            min-width: 260px;
+            animation: toastIn 0.25s ease;
+        }
+        .osla-toast.success { border-left-color: #198754; }
+        .osla-toast.error   { border-left-color: #dc3545; }
+        .osla-toast.info    { border-left-color: #0dcaf0; }
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(30px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+    </style>
+</head>
+
+<body>
+<div id="toastContainer"></div>
+
+    <nav class="navbar px-3 py-3 mb-4 sticky-top">
+        <div class="d-flex justify-content-between w-100 align-items-center">
+            <span class="fw-bold fs-4 text-white">OSLA<span style="color:var(--osla-orange)">PRINT</span></span>
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-white fw-bold me-2">Hola {{ current_user.username }}</span>
+                <button class="btn btn-outline-light btn-sm" data-bs-toggle="modal"
+                    data-bs-target="#modalChangePassword" title="Cambiar Contraseña">
+                    <i class="bi bi-key-fill"></i>
+                </button>
+                <a href="/logout" class="btn btn-outline-danger btn-sm"><i class="bi bi-box-arrow-right"></i></a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid px-3 px-md-5">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}{% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show bg-dark text-white border-secondary osla-flash">
+            {{ message }}<button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}{% endif %}
+        {% endwith %}
+
+        <div id="home-menu" class="row g-3 justify-content-center" style="max-width: 900px; margin: auto;">
+            <div class="col-12 col-md-6" onclick="showSection('section-parte')">
+                <div class="menu-card">
+                    <i class="bi bi-clipboard-check-fill fs-1 text-warning mb-2 d-block"></i>
+                    <h4 class="text-white">NUEVO PARTE</h4>
+                    <p class="text-muted small">Cerrar trabajo realizado</p>
+                </div>
+            </div>
+            <div class="col-12 col-md-6" onclick="showSection('section-agenda')">
+                <div class="menu-card">
+                    <i class="bi bi-calendar-week fs-1 text-white mb-2 d-block"></i>
+                    <h4 class="text-white">MI AGENDA</h4>
+                    <p class="text-muted small">Ver calendario y citas</p>
+                </div>
+            </div>
+            <div class="col-12 col-md-6" onclick="showSection('section-analytics')">
+                <div class="menu-card">
+                    <i class="bi bi-graph-up-arrow fs-1 text-info mb-2 d-block"></i>
+                    <h4 class="text-white">MIS ANALÍTICAS</h4>
+                    <p class="text-muted small">Estadísticas y rendimiento</p>
+                </div>
+            </div>
+            <div class="col-12 col-md-6" onclick="showSection('section-incidencias')">
+                <div class="menu-card">
+                    <i class="bi bi-exclamation-triangle fs-1 text-danger mb-2 d-block"></i>
+                    <h4 class="text-white">INCIDENCIAS</h4>
+                    <p class="text-muted small">Reportar problemas</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="section-parte" class="d-none" style="max-width: 900px; margin: auto;">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="text-warning fw-bold m-0 fs-4">Parte de Trabajo</h3>
+                <button class="btn btn-outline-secondary btn-sm px-3" onclick="showSection('home-menu')">Atrás</button>
+            </div>
+            <form action="/save_report" method="POST" enctype="multipart/form-data"
+                class="card bg-dark border-secondary p-3 p-md-4">
+
+                <div class="mb-3 p-3 rounded" style="background: #1f1f1f; border-left: 4px solid var(--osla-orange);">
+                    <label class="form-label text-warning fw-bold mb-2 small">VINCULAR CITA (OPCIONAL)</label>
+                    <select name="linked_task_id" id="linkedTaskSelect" class="form-select form-select-lg"
+                        onchange="fillFromTask(this)">
+                        <option value="none" selected>Nueva incidencia (Sin cita)</option>
+                        {% for task in pending_tasks %}
+                        <option value="{{ task.id }}" data-client="{{ task.client_name }}"
+                            data-date="{{ task.date.strftime('%Y-%m-%d') }}" data-time="{{ task.start_time }}"
+                            data-service="{{ task.service_type }}" data-desc="{{ task.description }}">
+                            {{ task.date.strftime('%d/%m') }} - {{ task.client_name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- ===== CRONÓMETRO DE TRABAJO ===== -->
+                <div id="workTimerBlock" class="mb-3 p-3 rounded" style="background: #0d0d0d; border: 2px solid #2a2a2a; transition: border-color 0.4s;">
+                    <label class="form-label fw-bold mb-3 small d-flex align-items-center gap-2" style="color: #888; letter-spacing: 1px; text-transform: uppercase;">
+                        <i class="bi bi-stopwatch"></i> Cronómetro de trabajo
+                    </label>
+                    <div class="d-flex flex-wrap align-items-center gap-3">
+                        <div id="timerDisplay" style="
+                            font-family: 'Courier New', monospace;
+                            font-size: 2.4rem;
+                            font-weight: 700;
+                            color: #555;
+                            letter-spacing: 4px;
+                            min-width: 160px;
+                            text-align: center;
+                            background: #000;
+                            border: 2px solid #222;
+                            border-radius: 8px;
+                            padding: 6px 18px;
+                            transition: color 0.4s, border-color 0.4s;
+                        ">00:00:00</div>
+                        <button type="button" id="timerBtn" onclick="toggleTimer()" style="
+                            background: var(--osla-orange);
+                            color: #fff;
+                            border: none;
+                            border-radius: 8px;
+                            font-weight: 700;
+                            font-size: 1rem;
+                            min-width: 160px;
+                            padding: 11px 0;
+                            transition: background 0.3s;
+                            cursor: pointer;
+                        ">
+                            <i class="bi bi-play-fill me-1" id="timerIcon"></i>
+                            <span id="timerBtnText">Iniciar trabajo</span>
+                        </button>
+                        <span id="timerStatus" class="small" style="color: #555;">Detenido</span>
+                    </div>
+                    <div id="timerSummary" class="mt-2 small" style="display:none; color: #aaa;">
+                        <i class="bi bi-check-circle-fill text-success me-1"></i>
+                        Tiempo registrado: <strong id="timerSummaryText" style="color:#fff;"></strong>
+                    </div>
+                    <!-- Campo oculto: se envía con el formulario POST -->
+                    <input type="hidden" name="work_duration" id="workDurationInput" value="">
+                </div>
+                <!-- ===== FIN CRONÓMETRO ===== -->
+
+                <div class="row g-3 mb-3">
+                    <div class="col-12 col-md-8 position-relative">
+                        <label class="form-label">CLIENTE</label>
+                        <input type="text" name="client_name" id="fieldClient" class="form-control" required
+                            placeholder="Buscar cliente..." autocomplete="off">
+                        <div id="listClient" class="suggestions-list"></div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label class="form-label">TIPO SERVICIO</label>
+                        <select name="service_type" id="fieldService" class="form-select">
+                            {% for s in all_service_types %}
+                            <option value="{{ s.name }}">{{ s.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-12 col-md-4">
+                        <label class="form-label">FECHA</label>
+                        <input type="date" name="date" id="fieldDate" class="form-control" value="{{ today_date }}"
+                            required>
+                    </div>
+                    <div class="col-6 col-md-4">
+                        <label class="form-label">ENTRADA</label>
+                        <input type="time" name="entry_time" id="fieldEntryTime" class="form-control" required>
+                    </div>
+                    <div class="col-6 col-md-4">
+                        <label class="form-label">SALIDA</label>
+                        <input type="time" name="exit_time" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">TRABAJO REALIZADO</label>
+                    <textarea name="description" id="fieldDescription" class="form-control" rows="4" required
+                        placeholder="Describa la solución..."></textarea>
+                </div>
+
+                <div class="p-3 mb-3 rounded" style="background: #161616; border: 1px dashed #666;">
+                    <label class="text-white fw-bold small mb-2 d-block"><i class="bi bi-box-seam me-2"></i>PIEZAS /
+                        STOCK</label>
+                    <small class="text-muted mb-3 d-block">Puede añadir múltiples artículos con diferentes acciones (usar/retirar/devolver)</small>
+                    <div id="stockItemsContainer">
+                        <div class="row g-2 mb-2 stock-item-row">
+                            <div class="col-5">
+                                <select name="stock_item_id[]" class="form-select">
+                                    <option value="">Sin artículo de stock</option>
+                                    {% if stock_categories %}
+                                        {% for cat in stock_categories %}
+                                            {% if cat.subcategories %}
+                                                {% for subcat in cat.subcategories %}
+                                                    {% set subcat_items = stock_items | selectattr('category_id', 'equalto', subcat.id) | list %}
+                                                    {% if subcat_items %}
+                                                    <optgroup label="{{ cat.name }} › {{ subcat.name }}">
+                                                        {% for item in subcat_items %}
+                                                        <option value="{{ item.id }}">{{ item.name }} ({{ item.quantity }} disponibles)</option>
+                                                        {% endfor %}
+                                                    </optgroup>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                {# Items directamente en la categoría padre #}
+                                                {% set cat_items = stock_items | selectattr('category_id', 'equalto', cat.id) | list %}
+                                                {% if cat_items %}
+                                                <optgroup label="{{ cat.name }}">
+                                                    {% for item in cat_items %}
+                                                    <option value="{{ item.id }}">{{ item.name }} ({{ item.quantity }} disponibles)</option>
+                                                    {% endfor %}
+                                                </optgroup>
+                                                {% endif %}
+                                            {% else %}
+                                                {% set cat_items = stock_items | selectattr('category_id', 'equalto', cat.id) | list %}
+                                                {% if cat_items %}
+                                                <optgroup label="{{ cat.name }}">
+                                                    {% for item in cat_items %}
+                                                    <option value="{{ item.id }}">{{ item.name }} ({{ item.quantity }} disponibles)</option>
+                                                    {% endfor %}
+                                                </optgroup>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                        {# Items sin categoría #}
+                                        {% set uncategorized = stock_items | selectattr('category_id', 'none') | list %}
+                                        {% if uncategorized %}
+                                        <optgroup label="Sin categoría">
+                                            {% for item in uncategorized %}
+                                            <option value="{{ item.id }}">{{ item.name }} ({{ item.quantity }} disponibles)</option>
+                                            {% endfor %}
+                                        </optgroup>
+                                        {% endif %}
+                                    {% else %}
+                                        {% for item in stock_items %}
+                                        <option value="{{ item.id }}">{{ item.name }} ({{ item.quantity }} disponibles)</option>
+                                        {% endfor %}
+                                    {% endif %}
+                                </select>
+                            </div>
+                            <div class="col-2">
+                                <input type="number" name="stock_quantity[]" class="form-control" min="0" value="0"
+                                    placeholder="Cant.">
+                            </div>
+                            <div class="col-3">
+                                <select name="stock_action[]" class="form-select">
+                                    <option value="usar">Usar</option>
+                                    <option value="retirar">Retirar</option>
+                                    <option value="devolver">Devolver</option>
+                                </select>
+                            </div>
+                            <div class="col-2">
+                                <button type="button" class="btn btn-success btn-sm w-100" onclick="addStockItem()">
+                                    <i class="bi bi-plus-lg"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <input type="text" name="parts_text" class="form-control"
+                            placeholder="Notas adicionales / Piezas retiradas...">
+                    </div>
+                </div>
+
+                <!-- NUEVA SECCIÓN: ARCHIVOS ADJUNTOS -->
+                <div class="mb-3 p-3 rounded" style="background: #161616; border: 1px dashed #666;">
+                    <label class="text-white fw-bold small mb-2 d-block">
+                        <i class="bi bi-paperclip me-2"></i>ARCHIVOS ADJUNTOS (OPCIONAL)
+                    </label>
+                    <small class="text-muted d-block mb-2">Máximo 16MB por archivo. Formatos permitidos: PNG, JPG, PDF,
+                        DOC, TXT</small>
+
+                    <div class="file-upload-area" id="fileUploadArea"
+                        onclick="document.getElementById('fileInput').click();">
+                        <i class="bi bi-cloud-upload fs-1 text-muted mb-2"></i>
+                        <p class="text-muted mb-0">Click para seleccionar archivos o arrastra aquí</p>
+                        <input type="file" id="fileInput" name="attachments" multiple
+                            accept=".png,.jpg,.jpeg,.gif,.pdf,.doc,.docx,.txt" style="display: none;"
+                            onchange="handleFileSelect(event)">
+                    </div>
+
+                    <div id="fileList" class="file-list"></div>
+                </div>
+
+                <!-- ========== SECCIÓN DE FIRMA DIGITAL ========== -->
+                <div class="mb-4 p-3 rounded" style="background: #161616; border: 2px solid var(--osla-orange);">
+                    <label class="text-white fw-bold mb-2 d-block">
+                        <i class="bi bi-pen-fill me-2"></i>FIRMA DEL CLIENTE *
+                        <span class="badge bg-danger ms-2">OBLIGATORIO</span>
+                    </label>
+                    <small class="text-muted d-block mb-3">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Solicite al cliente que firme en el recuadro blanco para confirmar la asistencia y conformidad
+                        con el
+                        trabajo realizado.
+                    </small>
+
+                    <!-- Nombre del firmante -->
+                    <div class="mb-3">
+                        <label class="form-label text-white">Nombre completo del firmante *</label>
+                        <input type="text" name="signature_name" id="signatureName" class="form-control" required
+                            placeholder="Ej: Juan García Pérez">
+                    </div>
+
+                    <!-- Canvas de firma -->
+                    <div class="signature-container bg-white rounded p-2 mb-2">
+                        <canvas id="signaturePadMain" class="signature-canvas" width="600" height="200"></canvas>
+                    </div>
+
+                    <!-- Campo oculto para guardar la firma en base64 -->
+                    <input type="hidden" name="signature_data" id="signatureDataInput">
+
+                    <!-- Botones de control -->
+                    <div class="d-flex gap-2 mb-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="clearMainSignature()">
+                            <i class="bi bi-eraser me-1"></i>Limpiar Firma
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-info" onclick="testMainSignature()">
+                            <i class="bi bi-eye me-1"></i>Verificar Firma
+                        </button>
+                    </div>
+
+                    <!-- Área de previsualización -->
+                    <div id="mainSignaturePreview" class="mt-2" style="display: none;">
+                        <p class="small text-success mb-2">
+                            <i class="bi bi-check-circle me-1"></i>Firma capturada correctamente
+                        </p>
+                        <img id="mainSignaturePreviewImg" class="border border-success rounded"
+                            style="max-width: 100%; height: auto; background: white;">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-osla">
+                    <i class="bi bi-check-circle-fill me-2"></i>GUARDAR PARTE
+                </button>
+            </form>
+        </div>
+
+        <div id="section-agenda" class="d-none" style="max-width: 1400px; margin: auto;">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="text-white fw-bold m-0 fs-4">Mi Calendario</h3>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-warning btn-sm fw-bold" data-bs-toggle="modal"
+                        data-bs-target="#modalNewAppointmentTech">
+                        <i class="bi bi-calendar-plus-fill me-1"></i> Nueva Cita
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm px-3"
+                        onclick="showSection('home-menu')">Atrás</button>
+                </div>
+            </div>
+
+            <!-- FILTROS POR TIPO DE SERVICIO -->
+            <div class="filter-group mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <small class="text-muted fw-bold">FILTRAR POR TIPO</small>
+                    <button class="btn btn-outline-light btn-sm" onclick="checkAllTechFilters()">
+                        <i class="bi bi-check-all me-1"></i> Todos
+                    </button>
+                </div>
+                <div class="btn-group-sm d-flex flex-wrap gap-2" role="group">
+                    {% for svc in all_service_types %}
+                    <input type="checkbox" class="btn-check tech-filter-cb" id="tech-filter-{{ svc.id }}"
+                        value="{{ svc.name }}" checked onchange="updateTechFilters()">
+                    <label class="btn btn-outline-custom flex-grow-1" for="tech-filter-{{ svc.id }}"
+                        style="border-color: {{ svc.color }}; color: {{ svc.color }};">
+                        {{ svc.name }}
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-12 col-lg-9">
+                    <div id="calendarSection">
+                        <div id="calendar"></div>
+                    </div>
+                </div>
+                <div class="col-12 col-lg-3">
+                    <div class="card bg-dark border-secondary p-2">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="text-white fw-bold m-0 small">Mis Tareas</h6>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button type="button" class="btn btn-outline-light btn-sm" onclick="sortTasks('date')"
+                                    title="Ordenar por fecha">
+                                    <i class="bi bi-calendar3"></i>
+                                </button>
+                                <button type="button" class="btn btn-outline-light btn-sm" onclick="sortTasks('alpha')"
+                                    title="Ordenar alfabético">
+                                    <i class="bi bi-sort-alpha-down"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="toggleCompleted"
+                                onchange="renderTaskList()">
+                            <label class="form-check-label" style="font-size:0.75rem;" for="toggleCompleted">Mostrar completadas</label>
+                        </div>
+                        <div id="taskListContainer" class="task-list-container"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN ANALÍTICAS -->
+        <div id="section-analytics" class="d-none" style="max-width: 1400px; margin: auto;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="text-info fw-bold m-0 fs-4"><i class="bi bi-graph-up me-2"></i>Mis Analíticas</h3>
+                <button class="btn btn-outline-secondary btn-sm px-3" onclick="showSection('home-menu')">Atrás</button>
+            </div>
+
+            <!-- Selector de Período -->
+            <div class="card bg-dark border-secondary p-3 mb-4">
+                <label class="form-label fw-bold text-info">PERÍODO DE ANÁLISIS</label>
+                <select id="periodSelector" class="form-select" onchange="loadAnalytics()">
+                    <option value="7">Últimos 7 días</option>
+                    <option value="30" selected>Últimos 30 días</option>
+                    <option value="90">Últimos 3 meses</option>
+                    <option value="180">Últimos 6 meses</option>
+                    <option value="365">Último año</option>
+                    <option value="all">Todo el historial</option>
+                </select>
+            </div>
+
+            <!-- Tarjetas de Resumen -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-4 col-6">
+                    <div class="card bg-dark border-secondary p-3 text-center">
+                        <i class="bi bi-clipboard-check fs-1 text-success mb-2"></i>
+                        <h2 class="text-white fw-bold mb-0" id="totalServices">0</h2>
+                        <small class="text-muted">Servicios Totales</small>
+                    </div>
+                </div>
+                <div class="col-md-4 col-6">
+                    <div class="card bg-dark border-secondary p-3 text-center">
+                        <i class="bi bi-tools fs-1 text-warning mb-2"></i>
+                        <h2 class="text-white fw-bold mb-0" id="totalMaintenances">0</h2>
+                        <small class="text-muted">Mantenimientos</small>
+                    </div>
+                </div>
+                <div class="col-md-4 col-6">
+                    <div class="card bg-dark border-secondary p-3 text-center">
+                        <i class="bi bi-clock-history fs-1 text-danger mb-2"></i>
+                        <h2 class="text-white fw-bold mb-0" id="avgTime">0h</h2>
+                        <small class="text-muted">Tiempo Promedio</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráficos -->
+            <div class="row g-3 mb-4">
+                <!-- Distribución de Servicios -->
+                <div class="col-lg-12">
+                    <div class="card bg-dark border-secondary p-4">
+                        <h5 class="text-white fw-bold mb-3"><i class="bi bi-pie-chart me-2"></i>Distribución de
+                            Servicios</h5>
+                        <canvas id="serviceDistributionChart" style="max-height: 300px;"></canvas>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+
+        <!-- SECCIÓN INCIDENCIAS -->
+        <div id="section-incidencias" class="d-none" style="max-width: 700px; margin: auto;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="text-danger fw-bold m-0 fs-4"><i class="bi bi-exclamation-triangle me-2"></i>Reportar Incidencia</h3>
+                <button class="btn btn-outline-secondary btn-sm px-3" onclick="showSection('home-menu')">Atrás</button>
+            </div>
+
+            <div class="card bg-dark border-danger p-4">
+                <form id="formIncidencias" method="POST">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-white">Tipo de Incidencia *</label>
+                        <select id="incidencia_tipo" name="tipo" class="form-select" required onchange="updateIncidenciaEmail()">
+                            <option value="">-- Seleccionar --</option>
+                            <option value="operativa">Incidencia Operativa (Cliente, Servicio, etc.)</option>
+                            <option value="tecnica">Error Técnico de la Web</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-white">Asunto *</label>
+                        <input type="text" id="incidencia_asunto" name="asunto" class="form-control" placeholder="Resumen breve del problema" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-white">Descripción Detallada *</label>
+                        <textarea id="incidencia_descripcion" name="descripcion" class="form-control" rows="5" 
+                                  placeholder="Describe el problema con el mayor detalle posible..." required></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-white">Cliente Relacionado (opcional)</label>
+                        <input type="text" id="incidencia_cliente" name="cliente" class="form-control" placeholder="Nombre del cliente si aplica">
+                    </div>
+
+                    <div class="alert alert-info border-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Destinatario:</strong> <span id="emailDestinatario" class="text-warning">Selecciona un tipo de incidencia</span>
+                    </div>
+
+                    <button type="submit" class="btn btn-danger w-100 btn-lg fw-bold">
+                        <i class="bi bi-send-fill me-2"></i>Enviar Incidencia
+                    </button>
+                </form>
+            </div>
+        </div>
+
+    </div><!-- /container-fluid -->
+
+    <!-- MODALES -->
+    <div class="modal fade" id="modalEventAction" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content bg-dark text-white border-warning">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title" id="evtTitle">Detalles Cita</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- INFORMACIÓN DEL CLIENTE (PROMINENTE) -->
+                    <div class="card bg-dark border-warning mb-3">
+                        <div class="card-header bg-warning text-dark border-0 py-2">
+                            <h6 class="mb-0 fw-bold">
+                                <i class="bi bi-person-circle me-2"></i>
+                                Información del Cliente
+                            </h6>
+                        </div>
+                        <div class="card-body bg-black" id="evtClientInfo">
+                            <div class="text-center text-muted py-2">
+                                <i class="bi bi-hourglass-split"></i> Cargando información...
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Estado del trabajo -->
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span id="evtStatus" class="badge p-2"></span>
+                    </div>
+
+                    <!-- Descripción del trabajo -->
+                    <h6 class="text-warning fw-bold mb-2">Descripción del Trabajo:</h6>
+                    <p class="small text-muted bg-black p-3 rounded border border-secondary" id="evtDesc"></p>
+
+                    <input type="hidden" id="evtId">
+                    <input type="hidden" id="evtClientId">
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-outline-danger flex-grow-1"
+                        onclick="performTaskAction('delete')">Eliminar</button>
+                    <button type="button" class="btn btn-outline-warning flex-grow-1"
+                        onclick="openEditTechModal()">Editar</button>
+                    <button type="button" class="btn btn-success flex-grow-1"
+                        onclick="performTaskAction('complete')">
+                        <i class="bi bi-check-circle-fill me-1"></i>Completar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalEditAppointmentTech" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <form action="/edit_appointment/0" method="POST" id="formEditApptTech"
+                class="modal-content bg-dark border-warning text-white">
+                <div class="modal-header border-0">
+                    <h5>Editar Cita</h5><button type="button" class="btn-close btn-close-white"
+                        data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3 position-relative">
+                        <label class="form-label">Cliente</label>
+                        <input type="text" name="client_name" id="editTechClientInput" class="form-control" required
+                            autocomplete="off">
+                        <div id="editTechClientList" class="suggestions-list"></div>
+                    </div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-7"><label class="form-label">Fecha</label><input type="date" name="date"
+                                id="editTechDate" class="form-control" required></div>
+                        <div class="col-5"><label class="form-label">Hora</label><input type="time" name="time"
+                                id="editTechTime" class="form-control" required></div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tipo Servicio</label>
+                        <select name="service_type" id="editTechService" class="form-select" required>
+                            {% for s in all_service_types %}
+                            <option value="{{ s.name }}">{{ s.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3"><label class="form-label">Notas</label><textarea name="notes" id="editTechNotes"
+                            class="form-control" rows="3"></textarea></div>
+                </div>
+                <div class="modal-footer border-0"><button type="submit" class="btn btn-warning w-100">Guardar
+                        Cambios</button></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Nueva Cita (Técnico) -->
+    <div class="modal fade" id="modalNewAppointmentTech" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark border-warning text-white">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title">Nueva Cita</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="formNewAppointmentTech" onsubmit="submitNewAppointment(event)">
+                    <div class="modal-body">
+                        <div class="mb-3 position-relative">
+                            <label class="form-label">Cliente</label>
+                            <input type="text" name="client_name" id="modalFieldClient" class="form-control" required
+                                autocomplete="off">
+                            <div id="modalListClient" class="suggestions-list"></div>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-7">
+                                <label class="form-label">Fecha</label>
+                                <input type="date" name="date" id="modalDateInput" class="form-control" required>
+                            </div>
+                            <div class="col-5">
+                                <label class="form-label">Hora Inicio</label>
+                                <input type="time" name="start_time" id="modalStartTime" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Hora Fin (Estimada) - Opcional</label>
+                            <input type="time" name="end_time" id="modalEndTime" class="form-control">
+                            <small class="text-muted">
+                                <i class="bi bi-info-circle me-1"></i>Campo opcional - puede dejarse vacío
+                            </small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tipo de Servicio</label>
+                            <select name="service_type_id" id="modalServiceType" class="form-select" required>
+                                {% for s in all_service_types %}
+                                <option value="{{ s.id }}">{{ s.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Descripción/Notas</label>
+                            <textarea name="description" class="form-control" rows="3"
+                                placeholder="Detalles de la cita..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="submit" class="btn btn-warning w-100 fw-bold">
+                            <i class="bi bi-calendar-plus me-1"></i>Agendar Cita
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalChangePassword" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <form action="/change_password" method="POST" class="modal-content bg-dark border-light">
+                <div class="modal-header border-0">
+                    <h5 class="text-white">Cambiar Mi Contraseña</h5><button type="button"
+                        class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Contraseña Actual</label>
+                        <input type="password" name="current_password" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nueva Contraseña</label>
+                        <input type="password" name="new_password" class="form-control" required>
+                    </div>
+                </div>
+                <div class="modal-footer border-0"><button type="submit"
+                        class="btn btn-light w-100 fw-bold">Actualizar</button></div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- Modal: Completar Parte de Trabajo -->
+    <div class="modal fade" id="modalCompleteTask" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">
+                        <i class="bi bi-clipboard-check-fill me-2 text-success"></i>
+                        Completar Parte de Trabajo
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="completeTaskId">
+
+                    <!-- Información de la tarea -->
+                    <div class="alert alert-info">
+                        <strong>Cliente:</strong> <span id="completeClientName"></span><br>
+                        <strong>Servicio:</strong> <span id="completeServiceType"></span>
+                    </div>
+
+                    <!-- Descripción del trabajo -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Descripción del Trabajo Realizado *</label>
+                        <textarea id="completeDescription" class="form-control" rows="4" required
+                            placeholder="Describe detalladamente el trabajo realizado..."></textarea>
+                    </div>
+
+                    <!-- Material/Piezas -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Material Utilizado o Retirado</label>
+                        <select id="completeStockItem" class="form-select mb-2">
+                            <option value="">-- No se usó material --</option>
+                            {% if stock_categories %}
+                                {% for cat in stock_categories %}
+                                    {% if cat.subcategories %}
+                                        {% for subcat in cat.subcategories %}
+                                            {% set subcat_items = stock_items | selectattr('category_id', 'equalto', subcat.id) | list %}
+                                            {% if subcat_items %}
+                                            <optgroup label="{{ cat.name }} › {{ subcat.name }}">
+                                                {% for item in subcat_items %}
+                                                <option value="{{ item.id }}">{{ item.name }} (Stock: {{ item.quantity }})</option>
+                                                {% endfor %}
+                                            </optgroup>
+                                            {% endif %}
+                                        {% endfor %}
+                                        {% set cat_items = stock_items | selectattr('category_id', 'equalto', cat.id) | list %}
+                                        {% if cat_items %}
+                                        <optgroup label="{{ cat.name }}">
+                                            {% for item in cat_items %}
+                                            <option value="{{ item.id }}">{{ item.name }} (Stock: {{ item.quantity }})</option>
+                                            {% endfor %}
+                                        </optgroup>
+                                        {% endif %}
+                                    {% else %}
+                                        {% set cat_items = stock_items | selectattr('category_id', 'equalto', cat.id) | list %}
+                                        {% if cat_items %}
+                                        <optgroup label="{{ cat.name }}">
+                                            {% for item in cat_items %}
+                                            <option value="{{ item.id }}">{{ item.name }} (Stock: {{ item.quantity }})</option>
+                                            {% endfor %}
+                                        </optgroup>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                                {% set uncategorized = stock_items | selectattr('category_id', 'none') | list %}
+                                {% if uncategorized %}
+                                <optgroup label="Sin categoría">
+                                    {% for item in uncategorized %}
+                                    <option value="{{ item.id }}">{{ item.name }} (Stock: {{ item.quantity }})</option>
+                                    {% endfor %}
+                                </optgroup>
+                                {% endif %}
+                            {% else %}
+                                {% for item in stock_items %}
+                                <option value="{{ item.id }}">{{ item.name }} (Stock: {{ item.quantity }})</option>
+                                {% endfor %}
+                            {% endif %}
+                        </select>
+
+                        <div id="stockDetailsDiv" style="display: none;">
+                            <div class="row">
+                                <div class="col-md-6 mb-2">
+                                    <label class="form-label small">Cantidad</label>
+                                    <input type="number" id="completeStockQuantity" class="form-control" min="1"
+                                        value="1">
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <label class="form-label small">Acción</label>
+                                    <select id="completeStockAction" class="form-select">
+                                        <option value="used">Utilizado</option>
+                                        <option value="removed">Retirado</option>
+                                        <option value="added">Añadido</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notas adicionales -->
+                    <div class="mb-3">
+                        <label class="form-label">Notas o Material Adicional</label>
+                        <input type="text" id="completeParts" class="form-control"
+                            placeholder="Otras piezas, observaciones...">
+                    </div>
+
+                    <!-- Archivos adjuntos -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Fotos y Documentos</label>
+                        <div id="modalFileUploadArea" class="border border-secondary rounded p-3 text-center bg-black"
+                            onclick="document.getElementById('modalFileInput').click()" style="cursor: pointer;">
+                            <i class="bi bi-cloud-upload fs-1 text-warning"></i>
+                            <p class="mb-0 mt-2">Haz clic o arrastra archivos aquí</p>
+                            <small class="text-muted">PNG, JPG, PDF, DOC - Máximo 16MB</small>
+                        </div>
+                        <input type="file" id="modalFileInput" multiple accept=".png,.jpg,.jpeg,.pdf,.doc,.docx"
+                            style="display: none;" onchange="handleModalFileSelect(event)">
+                        <div id="modalFileList" class="mt-2"></div>
+                    </div>
+
+                    <hr class="border-secondary">
+
+                    <!-- FIRMA DIGITAL -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-warning">
+                            <i class="bi bi-pen-fill me-2"></i>FIRMA DEL CLIENTE *
+                            <span class="badge bg-danger ms-2">OBLIGATORIO</span>
+                        </label>
+                        <small class="text-muted d-block mb-2">
+                            Solicite al cliente que firme en el recuadro para confirmar la asistencia y conformidad
+                        </small>
+
+                        <!-- Nombre del firmante -->
+                        <div class="mb-3">
+                            <label class="form-label">Nombre completo del firmante *</label>
+                            <input type="text" id="signatureClientName" class="form-control" required
+                                placeholder="Nombre y apellidos del cliente que firma">
+                        </div>
+
+                        <!-- Canvas de firma -->
+                        <div class="signature-container bg-white rounded p-2">
+                            <canvas id="signaturePad" class="signature-canvas"></canvas>
+                        </div>
+
+                        <div class="d-flex gap-2 mt-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="clearSignature()">
+                                <i class="bi bi-eraser me-1"></i>Limpiar Firma
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-info" onclick="previewSignature()">
+                                <i class="bi bi-eye me-1"></i>Vista Previa
+                            </button>
+                        </div>
+
+                        <div id="signaturePreview" class="mt-3" style="display: none;">
+                            <p class="small text-info mb-2">
+                                <i class="bi bi-check-circle me-1"></i>Vista previa de la firma:
+                            </p>
+                            <img id="signaturePreviewImg" class="border border-info rounded"
+                                style="max-width: 100%; height: auto; background: white;">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" onclick="saveTaskCompletion()">
+                        <i class="bi bi-check-circle-fill me-1"></i>Completar y Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // ====== TOAST NOTIFICATIONS (reemplaza alert() bloqueantes) ======
+        function showToast(msg, type = 'success', duration = 1200) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'osla-toast ' + type;
+            const icon = type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ';
+            toast.innerHTML = `<span style="margin-right:8px;font-weight:bold;">${icon}</span>${msg}`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.transition = 'opacity 0.3s';
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 320);
+            }, duration);
+        }
+
+        // Auto-dismiss flash messages de Flask (1 segundo)
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.osla-flash').forEach(function(el) {
+                setTimeout(function() {
+                    el.style.transition = 'opacity 0.4s';
+                    el.style.opacity = '0';
+                    setTimeout(function() { el.remove(); }, 420);
+                }, 1000);
+            });
+        });
+
+        let calendar;
+        const modalAction = new bootstrap.Modal(document.getElementById('modalEventAction'));
+
+        // Almacén local de tareas para la lista
+        let cachedTasks = [];       // Eventos del rango visible del calendario (para referencia)
+        let allTasksCache = [];     // TODOS los eventos del técnico (para la lista lateral)
+        let currentSort = 'date';   // 'date' | 'alpha'
+        let selectedFiles = [];     // Array para almacenar archivos seleccionados
+
+        // Carga TODOS los eventos (no solo el rango visible) para la lista lateral
+        function loadAllTasksForList() {
+            fetch('/api/tasks')
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    allTasksCache = data.map(function(e) {
+                        return {
+                            id: String(e.id),
+                            title: e.title || '',
+                            start: e.start || '',
+                            color: e.backgroundColor || e.color || '#6c757d',
+                            extendedProps: {
+                                status: e.extendedProps ? e.extendedProps.status : (e.status || 'Pendiente'),
+                                client: e.extendedProps ? e.extendedProps.client : (e.client || ''),
+                                client_id: e.extendedProps ? e.extendedProps.client_id : null,
+                                service_type: e.extendedProps ? e.extendedProps.service_type : (e.service_type || ''),
+                                desc: e.extendedProps ? e.extendedProps.desc : '',
+                                has_attachments: e.extendedProps ? e.extendedProps.has_attachments : false
+                            }
+                        };
+                    });
+                    renderTaskList();
+                })
+                .catch(function(err) {
+                    console.error('Error cargando todas las tareas:', err);
+                });
+        }
+
+        function showSection(id) {
+            document.querySelectorAll('[id^="section-"], #home-menu').forEach(el => el.classList.add('d-none'));
+            const target = document.getElementById(id);
+            if (target) target.classList.remove('d-none');
+
+            // Inicializar o refrescar calendario
+            if (id === 'section-agenda') {
+                if (!calendar) {
+                    setTimeout(() => initCalendar(), 100);
+                } else {
+                    // Ya existe: forzar re-render por si el contenedor cambió de tamaño
+                    setTimeout(() => {
+                        try { calendar.updateSize(); calendar.refetchEvents(); } catch(e) {}
+                    }, 100);
+                }
+            }
+
+            // Inicializar firma cuando se muestra la sección de parte
+            if (id === 'section-parte') {
+                setTimeout(() => { try { mainSignaturePad.init(); } catch(e) {} }, 100);
+            }
+
+            // Cargar analíticas cuando se muestra la sección
+            if (id === 'section-analytics') {
+                setTimeout(() => loadAnalytics(), 100);
+            }
+        }
+
+        function initCalendar() {
+            const isMobile = window.innerWidth < 768;
+            const calendarEl = document.getElementById('calendar');
+
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: isMobile ? 'listWeek' : 'dayGridMonth',
+                locale: 'es',
+                headerToolbar: {
+                    left: 'prev,next',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,listWeek'
+                },
+                height: 'auto',
+                events: function(fetchInfo, successCallback, failureCallback) {
+                    fetch('/api/tasks')
+                        .then(function(res) { return res.json(); })
+                        .then(function(data) {
+                            var activeTypes = getTechActiveFilters();
+                            var filtered = activeTypes.length === 0
+                                ? data
+                                : data.filter(function(ev) {
+                                    var stype = ev.extendedProps ? ev.extendedProps.service_type : ev.service_type;
+                                    return activeTypes.includes(stype);
+                                });
+                            successCallback(filtered);
+                        })
+                        .catch(failureCallback);
+                },
+                eventClick: handleEventClick,
+                dateClick: handleDateClick,
+                selectable: true,
+                eventDidMount: function (info) {
+                    if (info.backgroundColor) {
+                        info.el.style.backgroundColor = info.backgroundColor;
+                    }
+                    if (info.event.extendedProps.status === 'Completado') {
+                        info.el.style.opacity = '0.7';
+                        info.el.style.border = '2px solid #198754';
+                        // Añadir icono de check
+                        const title = info.el.querySelector('.fc-event-title');
+                        if (title) {
+                            title.innerHTML = '✓ ' + title.innerHTML;
+                        }
+                    }
+                },
+                eventsSet: function (events) {
+                    // Serializar EventApi para referencia local (solo rango visible)
+                    cachedTasks = events.map(function(e) {
+                        return {
+                            id: e.id,
+                            title: e.title,
+                            start: e.start ? e.start.toISOString() : '',
+                            color: e.backgroundColor || '#6c757d',
+                            extendedProps: {
+                                status: e.extendedProps.status,
+                                client: e.extendedProps.client,
+                                client_id: e.extendedProps.client_id,
+                                tech_name: e.extendedProps.tech_name,
+                                service_type: e.extendedProps.service_type,
+                                desc: e.extendedProps.desc,
+                                has_attachments: e.extendedProps.has_attachments
+                            }
+                        };
+                    });
+                    // Recargar TODOS los eventos para la lista (incluye completadas fuera del rango visible)
+                    loadAllTasksForList();
+                }
+            });
+            calendar.render();
+
+            // Agregar listener al checkbox de completadas
+            const toggleCheckbox = document.getElementById('toggleCompleted');
+            if (toggleCheckbox && !toggleCheckbox.hasAttribute('data-listener-added')) {
+                toggleCheckbox.addEventListener('change', renderTaskList);
+                toggleCheckbox.setAttribute('data-listener-added', 'true');
+            }
+        }
+
+        // --- FILTROS POR TIPO DE SERVICIO ---
+        function getTechActiveFilters() {
+            const activeTypes = [];
+            document.querySelectorAll('.tech-filter-cb:checked').forEach(cb => {
+                activeTypes.push(cb.value);
+            });
+            return activeTypes;
+        }
+
+        function checkAllTechFilters() {
+            document.querySelectorAll('.tech-filter-cb').forEach(cb => {
+                cb.checked = true;
+            });
+            updateTechFilters();
+        }
+
+        function updateTechFilters() {
+            if (!calendar) return;
+            // refetchEvents() llama a la función events() que aplica getTechActiveFilters()
+            // loadAllTasksForList() se llama vía eventsSet automáticamente
+            calendar.refetchEvents();
+        }
+
+        function handleEventClick(info) {
+            const evt = info.event;
+            document.getElementById('evtId').value = evt.id;
+            document.getElementById('evtTitle').innerText = evt.title;
+            document.getElementById('evtClientId').value = evt.extendedProps.client_id || '';
+            document.getElementById('evtDesc').innerText = evt.extendedProps.desc || 'Sin descripción';
+
+            const badge = document.getElementById('evtStatus');
+            const status = evt.extendedProps.status;
+            badge.innerText = status;
+            badge.className = 'badge p-2 ' + (status === 'Completado' ? 'bg-success' : 'bg-warning text-dark');
+
+            // CARGAR INFORMACIÓN DEL CLIENTE
+            const clientInfoContainer = document.getElementById('evtClientInfo');
+            const clientId = evt.extendedProps.client_id;
+
+            if (clientId) {
+                // Hacer petición al servidor para obtener información del cliente
+                fetch(`/api/client/${clientId}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success && data.client) {
+                            const client = data.client;
+                            let html = `
+                                <div class="row g-3">
+                                    <div class="col-md-12 mb-2">
+                                        <h5 class="text-warning mb-1 fw-bold">${client.name}</h5>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center mb-1">
+                                            <i class="bi bi-telephone-fill text-warning me-2" style="font-size: 1.1rem;"></i>
+                                            <strong class="text-white">Teléfono:</strong>
+                                        </div>
+                                        <a href="tel:${client.phone}" class="text-info fw-bold text-decoration-none d-block" style="font-size: 1.1rem;">
+                                            ${client.phone}
+                                        </a>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center mb-1">
+                                            <i class="bi bi-envelope-fill text-warning me-2" style="font-size: 1.1rem;"></i>
+                                            <strong class="text-white">Email:</strong>
+                                        </div>
+                                        <a href="mailto:${client.email}" class="text-info fw-bold text-decoration-none d-block" style="font-size: 1rem; word-break: break-all;">
+                                            ${client.email}
+                                        </a>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="d-flex align-items-center mb-1">
+                                            <i class="bi bi-geo-alt-fill text-warning me-2" style="font-size: 1.1rem;"></i>
+                                            <strong class="text-white">Dirección:</strong>
+                                        </div>
+                                        <span class="text-white fw-bold d-block" style="font-size: 1.05rem;" id="clientAddress">${client.address}</span>
+                                        <div class="d-flex gap-2 mt-2">
+                                            <button class="btn btn-sm btn-outline-info flex-fill" onclick="copyAddress('${client.address.replace(/'/g, "\\'")}')">
+                                                <i class="bi bi-clipboard me-1"></i>Copiar
+                                            </button>
+                                            <a href="https://www.google.com/maps" target="_blank" class="btn btn-sm btn-outline-warning flex-fill">
+                                                <i class="bi bi-map me-1"></i>Abrir Maps
+                                            </a>
+                                        </div>
+                                    </div>
+                            `;
+
+                            if (client.link) {
+                                html += `
+                                    <div class="col-md-12 mt-2">
+                                        <a href="${client.link}" target="_blank" class="btn btn-warning fw-bold w-100">
+                                            <i class="bi bi-globe me-1"></i>Sitio Web
+                                        </a>
+                                    </div>
+                                `;
+                            }
+
+                            if (client.has_support) {
+                                html += `
+                                    <div class="col-md-12 mt-2">
+                                        <div class="alert alert-success py-2 px-3 mb-0 fw-bold" style="background-color: #28a745 !important; color: white !important; border: 2px solid #20c997;">
+                                            <i class="bi bi-shield-check me-1"></i>
+                                            <strong>Soporte Activo:</strong>
+                                            ${client.support_monday_friday ? 'L-V ' : ''}
+                                            ${client.support_saturday ? 'Sáb ' : ''}
+                                            ${client.support_sunday ? 'Dom' : ''}
+                                        </div>
+                                    </div>
+                                `;
+                            }
+
+                            if (client.notes) {
+                                html += `
+                                    <div class="col-md-12 mt-3 pt-2 border-top border-secondary">
+                                        <div class="d-flex align-items-center mb-1">
+                                            <i class="bi bi-sticky text-warning me-2"></i>
+                                            <strong class="text-white">Notas:</strong>
+                                        </div>
+                                        <p class="text-white-50 mb-0" style="font-size: 0.95rem;">${client.notes}</p>
+                                    </div>
+                                `;
+                            }
+
+                            html += `</div>`;
+                            clientInfoContainer.innerHTML = html;
+                        } else {
+                            clientInfoContainer.innerHTML = `
+                                <div class="text-center text-muted py-2">
+                                    <i class="bi bi-exclamation-circle"></i> 
+                                    Cliente: ${evt.extendedProps.client}
+                                    <br>
+                                    <small>Información no disponible</small>
+                                </div>
+                            `;
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Error cargando información del cliente:', err);
+                        clientInfoContainer.innerHTML = `
+                            <div class="text-center text-warning py-2">
+                                <i class="bi bi-exclamation-triangle"></i> 
+                                Error al cargar información del cliente
+                            </div>
+                        `;
+                    });
+            } else {
+                // Si no hay client_id, mostrar solo el nombre
+                clientInfoContainer.innerHTML = `
+                    <div class="text-center py-2">
+                        <h5 class="text-warning mb-0">${evt.extendedProps.client}</h5>
+                        <small class="text-muted">Cliente no registrado en la base de datos</small>
+                    </div>
+                `;
+            }
+
+            modalAction.show();
+        }
+
+        // Función para manejar clic en día del calendario
+        function handleDateClick(info) {
+            // Prellenar el modal con la fecha seleccionada
+            document.getElementById('modalDateInput').value = info.dateStr;
+
+            // Abrir el modal de nueva cita
+            new bootstrap.Modal(document.getElementById('modalNewAppointmentTech')).show();
+        }
+
+        // Función para enviar nueva cita al backend
+        function submitNewAppointment(event) {
+            event.preventDefault();
+
+            const form = event.target;
+            const formData = new FormData(form);
+
+            // Preparar datos para enviar
+            const data = {
+                tech_id: '{{ current_user.id }}',
+                client_name: formData.get('client_name'),
+                date: formData.get('date'),
+                start_time: formData.get('start_time'),
+                end_time: formData.get('end_time'),
+                service_type_id: formData.get('service_type_id'),
+                description: formData.get('description') || ''
+            };
+
+            // Desactivar botón submit para evitar doble click
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn ? submitBtn.innerHTML : '';
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Agendando...';
+            }
+
+            fetch('/create_appointment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => response.json())
+                .then(result => {
+                    // Re-habilitar botón
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalBtnText;
+                    }
+
+                    if (result.success) {
+                        // ✅ Limpiar formulario ANTES de cerrar modal
+                        form.reset();
+                        
+                        // Limpiar campos explícitamente
+                        document.getElementById('modalFieldClient').value = '';
+                        document.getElementById('modalDateInput').value = '';
+                        document.getElementById('modalStartTime').value = '';
+                        document.getElementById('modalEndTime').value = '';
+                        
+                        // Cerrar modal
+                        const modalEl = document.getElementById('modalNewAppointmentTech');
+                        const modal = bootstrap.Modal.getInstance(modalEl);
+                        if (modal) {
+                            modal.hide();
+                        }
+
+                        // ✅ Actualizar calendario (eventsSet se ejecuta automáticamente)
+                        if (calendar) {
+                            calendar.refetchEvents();
+                        }
+
+                        // Mostrar confirmación no bloqueante
+                        showToast('✓ Cita agendada correctamente', 'success');
+                    } else {
+                        alert('Error al agendar cita: ' + (result.msg || 'Error desconocido'));
+                    }
+                })
+                .catch(error => {
+                    // Re-habilitar botón en caso de error
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalBtnText;
+                    }
+                    console.error('Error:', error);
+                    alert('Error al conectar con el servidor');
+                });
+        }
+
+        function renderTaskList() {
+            const container = document.getElementById('taskListContainer');
+            if (!container) return;
+            const showCompleted = document.getElementById('toggleCompleted')?.checked || false;
+            const activeTypes = getTechActiveFilters();
+
+            // Usar allTasksCache (todos los eventos) en lugar de cachedTasks (solo rango visible)
+            const source = allTasksCache.length > 0 ? allTasksCache : cachedTasks;
+
+            // 1. Filtrar por estado Y por tipo activo
+            let filtered = source.filter(t => {
+                const statusOk = showCompleted ? true : t.extendedProps.status !== 'Completado';
+                const typeOk = activeTypes.length === 0 || activeTypes.includes(t.extendedProps.service_type);
+                return statusOk && typeOk;
+            });
+
+            // 2. Ordenar
+            filtered.sort((a, b) => {
+                if (currentSort === 'alpha') {
+                    return a.title.localeCompare(b.title);
+                } else {
+                    return new Date(a.start) - new Date(b.start);
+                }
+            });
+
+            // 3. Renderizar HTML
+            container.innerHTML = '';
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="text-muted text-center py-3">No hay tareas pendientes.</div>';
+                return;
+            }
+
+            filtered.forEach(t => {
+                const isDone = t.extendedProps.status === 'Completado';
+                const dateStr = t.start.split('T')[0];
+                const timeStr = t.start.includes('T') ? t.start.split('T')[1].substring(0, 5) : '';
+
+                // Usar el color del tipo también aquí
+                const typeColor = t.color;
+
+                const div = document.createElement('div');
+                div.className = `task-item d-flex justify-content-between align-items-center`;
+                div.style.borderLeftColor = typeColor;
+                if (isDone) {
+                    div.style.opacity = '0.6';
+                    div.style.textDecoration = 'line-through';
+                }
+
+                div.innerHTML = `
+                <div class="d-flex align-items-center gap-2" style="flex-grow: 1;">
+                    <input type="checkbox" class="form-check-input" style="width: 24px; height: 24px; cursor: pointer;" 
+                        ${isDone ? 'checked' : ''} 
+                        onclick="toggleTaskComplete('${t.id}')" 
+                        title="${isDone ? 'Marcar como pendiente' : 'Marcar como completada'}">
+                    <div style="cursor:pointer; flex-grow: 1;" onclick="focusCalendarEvent('${t.id}')">
+                        <div class="fw-bold text-white">${t.extendedProps.client || 'Sin cliente'}</div>
+                        <div class="small text-secondary">
+                            <i class="bi bi-calendar-event me-1"></i>${dateStr} ${timeStr ? '| ' + timeStr : ''}
+                            <br>
+                            <span class="badge ${isDone ? 'bg-success' : 'bg-secondary'}">${t.extendedProps.status}</span>
+                            <span class="badge" style="background:${typeColor}">${t.extendedProps.service_type || 'Sin tipo'}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex gap-1 flex-shrink-0">
+                    <button class="btn btn-sm btn-outline-secondary" onclick="event.stopPropagation(); openEditFromList('${t.id}')" title="Editar"><i class="bi bi-pencil"></i></button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="event.stopPropagation(); deleteFromList('${t.id}')" title="Eliminar"><i class="bi bi-trash"></i></button>
+                </div>
+            `;
+                container.appendChild(div);
+            });
+        }
+        
+        // ✅ FUNCIÓN: Toggle estado de tarea completada/pendiente
+        function toggleTaskComplete(taskId) {
+            fetch(`/api/task_action/${taskId}/toggle`, { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        if (calendar) calendar.refetchEvents();
+                        const msg = data.status === 'Completado' ? '✓ Tarea completada' : '↻ Tarea pendiente';
+                        showToast(msg, 'success');
+                    } else {
+                        alert('Error: ' + (data.msg || 'No se pudo actualizar la tarea'));
+                    }
+                })
+                .catch(err => {
+                    console.error('Error:', err);
+                    alert('Error al actualizar la tarea');
+                });
+        }
+
+        function sortTasks(sortType) {
+            currentSort = sortType;
+            renderTaskList();
+        }
+
+        function deleteFromList(id) {
+            if (!confirm('¿Eliminar esta tarea?')) return;
+
+            fetch(`/api/task_action/${id}/delete`, { method: 'POST' })
+                .then(res => {
+                    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+                    return res.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        if (calendar) calendar.refetchEvents();
+                        showToast('✓ Tarea eliminada', 'success');
+                    } else {
+                        alert('❌ Error: ' + (data.msg || 'No se pudo eliminar la tarea'));
+                    }
+                })
+                .catch(err => {
+                    console.error('Error:', err);
+                    alert('❌ Error de conexión. Por favor, intenta de nuevo.');
+                });
+        }
+
+        // Función auxiliar para editar desde la lista
+        function openEditFromList(id) {
+            // Buscar el evento en el calendario
+            const task = cachedTasks.find(t => t.id == id);
+            if (!task) {
+                alert('No se encontró la tarea');
+                return;
+            }
+            
+            // Setear el ID y abrir el modal de edición
+            document.getElementById('evtId').value = id;
+            
+            // Cargar los datos y abrir el modal de edición
+            fetch(`/api/get_task/${id}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('editTechClientInput').value = data.data.client_name;
+                        document.getElementById('editTechDate').value = data.data.date;
+                        document.getElementById('editTechTime').value = data.data.time;
+                        document.getElementById('editTechService').value = data.data.service_type;
+                        document.getElementById('editTechNotes').value = data.data.notes || '';
+                        document.getElementById('formEditApptTech').action = `/edit_appointment/${id}`;
+                        new bootstrap.Modal(document.getElementById('modalEditAppointmentTech')).show();
+                        setupAutocomplete('editTechClientInput', 'editTechClientList');
+                    } else {
+                        alert('Error al cargar los datos de la tarea');
+                    }
+                })
+                .catch(err => {
+                    console.error('Error:', err);
+                    alert('Error al cargar la tarea');
+                });
+        }
+
+        function focusCalendarEvent(id) {
+            if (!calendar) {
+                // Si el calendario no está inicializado, ir a la sección y esperar
+                showSection('section-agenda');
+                setTimeout(() => focusCalendarEvent(id), 400);
+                return;
+            }
+            const task = cachedTasks.find(t => t.id == id);
+            if (task) {
+                // Navegar al día en el calendario
+                calendar.gotoDate(task.start);
+                
+                // Simular clic en el evento para abrir el modal
+                const evt = calendar.getEventById(id);
+                if (evt) {
+                    handleEventClick({ event: evt });
+                }
+            }
+        }
+
+        function performTaskAction(action) {
+            const id = document.getElementById('evtId').value;
+
+            // Si la acción es completar, abrir el modal de completar con firma
+            if (action === 'complete') {
+                modalAction.hide();
+                openCompleteTaskModal(id);
+                return;
+            }
+
+            // Para otras acciones (delete), continuar normalmente
+            const actionNames = {
+                'delete': 'eliminar',
+                'cancel': 'cancelar'
+            };
+            const actionName = actionNames[action] || action;
+
+            if (!confirm(`¿Confirmar ${actionName} esta tarea?`)) return;
+
+            fetch(`/api/task_action/${id}/${action}`, { method: 'POST' })
+                .then(res => {
+                    if (!res.ok) {
+                        throw new Error(`HTTP error! status: ${res.status}`);
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        calendar.refetchEvents();
+                        modalAction.hide();
+                        const successMsg = action === 'delete' ? 'Tarea eliminada' : 'Acción completada';
+                        showToast('✓ ' + successMsg, 'success');
+                    } else {
+                        alert('❌ Error: ' + (data.msg || 'No se pudo completar la acción'));
+                    }
+                })
+                .catch(err => {
+                    console.error('Error en performTaskAction:', err);
+                    alert('❌ Error de conexión. Por favor, intenta de nuevo.');
+                });
+        }
+
+        // --- SINCRONIZACIÓN DE DATOS AL SELECCIONAR TAREA ---
+        // fillFromTask definida más abajo con lógica completa incluyendo showClientInfo
+
+        // --- AUTOCOMPLETE LOGIC ---
+        function setupAutocomplete(inputId, listId) {
+            const input = document.getElementById(inputId);
+            const list = document.getElementById(listId);
+
+            if (!input || !list) return;
+
+            input.addEventListener('input', function () {
+                const val = this.value;
+                if (!val || val.length < 2) {
+                    list.innerHTML = '';
+                    list.style.display = 'none';
+                    return;
+                }
+
+                fetch(`/api/clients_search?q=${encodeURIComponent(val)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        list.innerHTML = '';
+                        if (data.length > 0) {
+                            list.style.display = 'block';
+                            data.forEach(item => {
+                                const div = document.createElement('div');
+                                div.className = 'suggestion-item';
+                                div.innerText = item.name;
+                                div.onclick = function () {
+                                    input.value = item.name;
+                                    list.innerHTML = '';
+                                    list.style.display = 'none';
+                                };
+                                list.appendChild(div);
+                            });
+                        } else {
+                            list.style.display = 'none';
+                        }
+                    });
+            });
+
+            document.addEventListener('click', function (e) {
+                if (e.target !== input && e.target !== list) {
+                    list.style.display = 'none';
+                }
+            });
+        }
+
+        // Activar autocompletado en los campos
+        setupAutocomplete('fieldClient', 'listClient');
+        setupAutocomplete('modalFieldClient', 'modalListClient');
+
+        // Función para editar cita (Tech)
+        function openEditTechModal() {
+            const taskId = document.getElementById('evtId').value;
+            fetch(`/api/get_task/${taskId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('editTechClientInput').value = data.data.client_name;
+                        document.getElementById('editTechDate').value = data.data.date;
+                        document.getElementById('editTechTime').value = data.data.time;
+                        document.getElementById('editTechService').value = data.data.service_type;
+                        document.getElementById('editTechNotes').value = data.data.notes;
+                        document.getElementById('formEditApptTech').action = `/edit_appointment/${taskId}`;
+                        modalAction.hide();
+                        new bootstrap.Modal(document.getElementById('modalEditAppointmentTech')).show();
+                        setupAutocomplete('editTechClientInput', 'editTechClientList');
+                    }
+                });
+        }
+
+        // --- MANEJO DE ARCHIVOS (formulario principal de parte) ---
+        const fileUploadArea = document.getElementById('fileUploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileListContainer = document.getElementById('fileList');
+
+        // Manejo de archivos del MODAL de completar tarea
+        const modalFileUploadArea = document.getElementById('modalFileUploadArea');
+        if (modalFileUploadArea) {
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(ev => {
+                modalFileUploadArea.addEventListener(ev, preventDefaults, false);
+            });
+            ['dragenter', 'dragover'].forEach(ev => {
+                modalFileUploadArea.addEventListener(ev, () => modalFileUploadArea.classList.add('drag-over'), false);
+            });
+            ['dragleave', 'drop'].forEach(ev => {
+                modalFileUploadArea.addEventListener(ev, () => modalFileUploadArea.classList.remove('drag-over'), false);
+            });
+            modalFileUploadArea.addEventListener('drop', (e) => {
+                handleFiles(e.dataTransfer.files);
+            }, false);
+        }
+
+        function handleModalFileSelect(event) {
+            handleFiles(event.target.files);
+        }
+
+        // Prevenir comportamiento por defecto de drag and drop
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            fileUploadArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        // Resaltar área de drop cuando se arrastra un archivo
+        ['dragenter', 'dragover'].forEach(eventName => {
+            fileUploadArea.addEventListener(eventName, () => {
+                fileUploadArea.classList.add('drag-over');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            fileUploadArea.addEventListener(eventName, () => {
+                fileUploadArea.classList.remove('drag-over');
+            }, false);
+        });
+
+        // Manejar drop de archivos
+        fileUploadArea.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }, false);
+
+        // Manejar selección de archivos
+        function handleFileSelect(event) {
+            const files = event.target.files;
+            handleFiles(files);
+        }
+
+        function handleFiles(files) {
+            [...files].forEach(file => {
+                // Validar tamaño (16MB máximo)
+                if (file.size > 16 * 1024 * 1024) {
+                    alert(`El archivo ${file.name} es muy grande. Máximo 16MB.`);
+                    return;
+                }
+
+                // Validar extensión
+                const extension = file.name.split('.').pop().toLowerCase();
+                const allowed = ['png', 'jpg', 'jpeg', 'gif', 'pdf', 'doc', 'docx', 'txt'];
+                if (!allowed.includes(extension)) {
+                    alert(`Tipo de archivo no permitido: ${file.name}`);
+                    return;
+                }
+
+                selectedFiles.push(file);
+            });
+
+            renderFileList();
+        }
+
+        function renderFileList() {
+            // Actualizar ambos contenedores si existen
+            const containers = [
+                document.getElementById('fileList'),
+                document.getElementById('modalFileList')
+            ].filter(Boolean);
+
+            containers.forEach(container => {
+                container.innerHTML = '';
+                selectedFiles.forEach((file, index) => {
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'file-item';
+                    fileItem.innerHTML = `
+                    <div>
+                        <i class="bi bi-file-earmark me-2"></i>
+                        <span>${file.name}</span>
+                        <small class="text-muted ms-2">(${(file.size / 1024).toFixed(1)} KB)</small>
+                    </div>
+                    <span class="remove-file" onclick="removeFile(${index})">
+                        <i class="bi bi-x-circle-fill"></i>
+                    </span>
+                `;
+                    container.appendChild(fileItem);
+                });
+            });
+
+            // Actualizar el input del form de parte si existe
+            if (fileInput) {
+                const dt = new DataTransfer();
+                selectedFiles.forEach(file => dt.items.add(file));
+                fileInput.files = dt.files;
+            }
+        }
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            renderFileList();
+        }
+
+        // ============================================================
+        // FUNCIONES DE ANALÍTICAS
+        // ============================================================
+
+        let pieChart, lineChart, barChart;
+        let analyticsData = null;
+
+        // Cargar analíticas cuando se abre la sección
+        function loadAnalytics() {
+            const period = document.getElementById('periodSelector').value;
+
+            // Mostrar indicador de carga
+            document.getElementById('totalServices').textContent = '...';
+            document.getElementById('totalMaintenances').textContent = '...';
+            document.getElementById('avgTime').textContent = '...';
+
+            fetch(`/api/tech_analytics?period=${period}`)
+                .then(res => {
+                    if (!res.ok) {
+                        throw new Error(`HTTP error! status: ${res.status}`);
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    analyticsData = data;
+                    updateAnalyticsSummary(data);
+                    updateServiceDistributionChart(data);
+                })
+                .catch(err => {
+                    console.error('Error cargando analíticas:', err);
+                    document.getElementById('totalServices').textContent = '0';
+                    document.getElementById('totalMaintenances').textContent = '0';
+                    document.getElementById('avgTime').textContent = '0h';
+                    // Mostrar mensaje en la UI en lugar de alert
+                    const container = document.querySelector('#section-analytics .row');
+                    if (container) {
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'col-12 alert alert-warning mt-3';
+                        errorDiv.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>No se pudieron cargar las analíticas. Asegúrate de tener partes completados.';
+                        container.insertBefore(errorDiv, container.firstChild);
+                        setTimeout(() => errorDiv.remove(), 5000);
+                    }
+                });
+        }
+
+        function updateAnalyticsSummary(data) {
+            document.getElementById('totalServices').textContent = data.total_services || 0;
+            document.getElementById('totalMaintenances').textContent = data.total_maintenances || 0;
+            document.getElementById('avgTime').textContent = (data.avg_time || 0) + 'h';
+        }
+
+        function updateServiceDistributionChart(data) {
+            const ctx = document.getElementById('serviceDistributionChart');
+
+            if (pieChart) {
+                pieChart.destroy();
+            }
+
+            const distribution = data.service_distribution || {};
+            const labels = Object.keys(distribution);
+            const values = Object.values(distribution);
+
+            const colors = [
+                '#f37021', '#4bc0c0', '#ff6384', '#36a2eb', '#ffcd56',
+                '#9966ff', '#ff9f40', '#4dc9f6', '#f67019', '#8549ba'
+            ];
+
+            pieChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: colors.slice(0, labels.length),
+                        borderColor: '#161616',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#ffffff',
+                                padding: 15,
+                                font: { size: 11 }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `${label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Cargar analíticas cuando se muestra la sección
+        // ==================== FIRMA DIGITAL ====================
+
+        // Firma para el FORMULARIO PRINCIPAL (section-parte)
+        let mainSignaturePad = {
+            canvas: null,
+            ctx: null,
+            isDrawing: false,
+            lastX: 0,
+            lastY: 0,
+
+            init: function () {
+                this.canvas = document.getElementById('signaturePadMain');
+                if (!this.canvas) return;
+
+                this.ctx = this.canvas.getContext('2d');
+
+                // Ajustar tamaño del canvas
+                const container = this.canvas.parentElement;
+                this.canvas.width = container.clientWidth - 20;
+                this.canvas.height = 200;
+
+                // Configurar estilo de dibujo
+                this.ctx.strokeStyle = '#000';
+                this.ctx.lineWidth = 2;
+                this.ctx.lineCap = 'round';
+                this.ctx.lineJoin = 'round';
+
+                // Limpiar canvas con fondo blanco
+                this.ctx.fillStyle = '#fff';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+                // Eventos de mouse
+                this.canvas.addEventListener('mousedown', (e) => this.startDrawing(e));
+                this.canvas.addEventListener('mousemove', (e) => this.draw(e));
+                this.canvas.addEventListener('mouseup', () => this.stopDrawing());
+                this.canvas.addEventListener('mouseout', () => this.stopDrawing());
+
+                // Eventos táctiles
+                this.canvas.addEventListener('touchstart', (e) => this.handleTouch(e));
+                this.canvas.addEventListener('touchmove', (e) => this.handleTouch(e));
+                this.canvas.addEventListener('touchend', () => this.stopDrawing());
+            },
+
+            startDrawing: function (e) {
+                this.isDrawing = true;
+                const rect = this.canvas.getBoundingClientRect();
+                this.lastX = e.clientX - rect.left;
+                this.lastY = e.clientY - rect.top;
+            },
+
+            draw: function (e) {
+                if (!this.isDrawing) return;
+
+                const rect = this.canvas.getBoundingClientRect();
+                const currentX = e.clientX - rect.left;
+                const currentY = e.clientY - rect.top;
+
+                this.ctx.beginPath();
+                this.ctx.moveTo(this.lastX, this.lastY);
+                this.ctx.lineTo(currentX, currentY);
+                this.ctx.stroke();
+
+                this.lastX = currentX;
+                this.lastY = currentY;
+            },
+
+            stopDrawing: function () {
+                this.isDrawing = false;
+            },
+
+            handleTouch: function (e) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                if (!touch) return;
+
+                const mouseEvent = new MouseEvent(
+                    e.type === 'touchstart' ? 'mousedown' :
+                        e.type === 'touchmove' ? 'mousemove' : 'mouseup',
+                    {
+                        clientX: touch.clientX,
+                        clientY: touch.clientY,
+                        bubbles: true
+                    }
+                );
+                this.canvas.dispatchEvent(mouseEvent);
+            },
+
+            clear: function () {
+                if (!this.canvas || !this.ctx) return;
+                this.ctx.fillStyle = '#fff';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                document.getElementById('mainSignaturePreview').style.display = 'none';
+            },
+
+            toDataURL: function () {
+                if (!this.canvas) return null;
+                return this.canvas.toDataURL('image/png');
+            },
+
+            isEmpty: function () {
+                if (!this.canvas) return true;
+
+                const pixelData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height).data;
+
+                // Verificar si hay algún píxel no blanco
+                for (let i = 0; i < pixelData.length; i += 4) {
+                    // Si encuentra un píxel que no sea blanco puro o transparente
+                    if (pixelData[i] !== 255 || pixelData[i + 1] !== 255 || pixelData[i + 2] !== 255) {
+                        return false;
+                    }
+                }
+                return true;
+            },
+
+            preview: function () {
+                if (this.isEmpty()) {
+                    alert('La firma está vacía. Por favor, firme en el recuadro.');
+                    return;
+                }
+
+                const dataURL = this.toDataURL();
+                const preview = document.getElementById('mainSignaturePreview');
+                const previewImg = document.getElementById('mainSignaturePreviewImg');
+
+                previewImg.src = dataURL;
+                preview.style.display = 'block';
+            }
+        };
+
+        // Funciones globales para los botones
+        function clearMainSignature() {
+            mainSignaturePad.clear();
+        }
+
+        function testMainSignature() {
+            mainSignaturePad.preview();
+        }
+
+        // Inicializar firma cuando se muestra la sección de parte
+        // VALIDACIÓN DEL FORMULARIO ANTES DE ENVIAR
+        document.addEventListener('DOMContentLoaded', function () {
+            const reportForm = document.querySelector('form[action="/save_report"]');
+            if (reportForm) {
+                reportForm.addEventListener('submit', function (e) {
+                    // Validar nombre del firmante
+                    const signatureName = document.getElementById('signatureName').value.trim();
+                    if (!signatureName) {
+                        e.preventDefault();
+                        alert('⚠️ Por favor, ingresa el nombre completo del cliente que firma');
+                        document.getElementById('signatureName').focus();
+                        return false;
+                    }
+
+                    // Validar firma digital
+                    if (mainSignaturePad.isEmpty()) {
+                        e.preventDefault();
+                        alert('⚠️ La firma del cliente es OBLIGATORIA\n\nPor favor, solicita al cliente que firme en el recuadro blanco para confirmar la asistencia y conformidad con el trabajo realizado.');
+                        return false;
+                    }
+
+                    // Capturar firma en base64 y guardarla en el campo oculto
+                    const signatureData = mainSignaturePad.toDataURL();
+                    document.getElementById('signatureDataInput').value = signatureData;
+
+                    // Opcional: Mostrar mensaje de confirmación
+                    console.log('✅ Firma capturada correctamente');
+                    console.log('✅ Nombre del firmante:', signatureName);
+
+                    // Permitir envío del formulario
+                    return true;
+                });
+            }
+
+            // ✅ CORRECCIÓN: Limpiar formulario cuando se cierre el modal
+            const modalNewAppt = document.getElementById('modalNewAppointmentTech');
+            if (modalNewAppt) {
+                modalNewAppt.addEventListener('hidden.bs.modal', function () {
+                    const form = this.querySelector('form');
+                    if (form) {
+                        form.reset();
+                        // Limpiar campos explícitamente para mayor seguridad
+                        const clientInput = document.getElementById('modalFieldClient');
+                        const dateInput = document.getElementById('modalDateInput');
+                        const startTimeInput = document.getElementById('modalStartTime');
+                        const endTimeInput = document.getElementById('modalEndTime');
+                        
+                        if (clientInput) clientInput.value = '';
+                        if (dateInput) dateInput.value = '';
+                        if (startTimeInput) startTimeInput.value = '';
+                        if (endTimeInput) endTimeInput.value = '';
+                    }
+                });
+            }
+        });
+
+        // Firma para el MODAL de completar tarea (mantener código original)
+
+        let signaturePad = null;
+        let isDrawing = false;
+        let lastX = 0;
+        let lastY = 0;
+
+        function initSignaturePad() {
+            const canvas = document.getElementById('signaturePad');
+            if (!canvas) return;
+
+            // Clonar el canvas para eliminar todos los event listeners previos
+            const newCanvas = canvas.cloneNode(true);
+            canvas.parentNode.replaceChild(newCanvas, canvas);
+
+            const ctx = newCanvas.getContext('2d');
+
+            // Ajustar tamaño del canvas
+            const container = newCanvas.parentElement;
+            newCanvas.width = container.clientWidth - 20;
+            newCanvas.height = 200;
+
+            // Configurar estilo de dibujo
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            // Limpiar canvas
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(0, 0, newCanvas.width, newCanvas.height);
+
+            // Eventos de mouse
+            newCanvas.addEventListener('mousedown', startDrawing);
+            newCanvas.addEventListener('mousemove', draw);
+            newCanvas.addEventListener('mouseup', stopDrawing);
+            newCanvas.addEventListener('mouseout', stopDrawing);
+
+            // Eventos táctiles
+            newCanvas.addEventListener('touchstart', handleTouch);
+            newCanvas.addEventListener('touchmove', handleTouch);
+            newCanvas.addEventListener('touchend', stopDrawing);
+        }
+
+        function startDrawing(e) {
+            isDrawing = true;
+            const rect = e.target.getBoundingClientRect();
+            lastX = e.clientX - rect.left;
+            lastY = e.clientY - rect.top;
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+
+            const canvas = document.getElementById('signaturePad');
+            const ctx = canvas.getContext('2d');
+            const rect = canvas.getBoundingClientRect();
+
+            const currentX = e.clientX - rect.left;
+            const currentY = e.clientY - rect.top;
+
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(currentX, currentY);
+            ctx.stroke();
+
+            lastX = currentX;
+            lastY = currentY;
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+        }
+
+        function handleTouch(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            if (!touch) return;
+
+            const mouseEvent = new MouseEvent(
+                e.type === 'touchstart' ? 'mousedown' :
+                    e.type === 'touchmove' ? 'mousemove' : 'mouseup',
+                {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY,
+                    bubbles: true
+                }
+            );
+            e.target.dispatchEvent(mouseEvent);
+        }
+
+        function clearSignature() {
+            const canvas = document.getElementById('signaturePad');
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            document.getElementById('signaturePreview').style.display = 'none';
+        }
+
+        function previewSignature() {
+            const canvas = document.getElementById('signaturePad');
+            const dataURL = canvas.toDataURL('image/png');
+
+            const preview = document.getElementById('signaturePreview');
+            const previewImg = document.getElementById('signaturePreviewImg');
+
+            previewImg.src = dataURL;
+            preview.style.display = 'block';
+        }
+
+        function isSignatureEmpty() {
+            const canvas = document.getElementById('signaturePad');
+            if (!canvas) return true;
+            const ctx = canvas.getContext('2d');
+            const pixelData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+
+            // Un canvas con fondo blanco tiene R=255, G=255, B=255, A=255
+            // Si algún pixel tiene un color distinto al blanco puro, hay firma
+            for (let i = 0; i < pixelData.length; i += 4) {
+                if (pixelData[i] !== 255 || pixelData[i + 1] !== 255 || pixelData[i + 2] !== 255) {
+                    return false; // hay trazos
+                }
+            }
+            return true; // todo blanco = vacío
+        }
+
+        function getSignatureData() {
+            if (isSignatureEmpty()) {
+                return null;
+            }
+
+            const canvas = document.getElementById('signaturePad');
+            return canvas.toDataURL('image/png');
+        }
+
+        // ==================== COMPLETAR TAREA ====================
+
+        function openCompleteTaskModal(taskId) {
+            // Obtener detalles de la tarea
+            fetch(`/api/task/${taskId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        const task = data.data;
+
+                        document.getElementById('completeTaskId').value = taskId;
+                        document.getElementById('completeClientName').textContent = task.client_name;
+                        document.getElementById('completeServiceType').textContent = task.service_type;
+                        document.getElementById('completeDescription').value = task.description || '';
+
+                        // Limpiar firma y archivos
+                        clearSignature();
+                        document.getElementById('signatureClientName').value = task.client_name;
+                        selectedFiles = [];
+                        renderFileList();
+
+                        // Mostrar modal
+                        const modal = new bootstrap.Modal(document.getElementById('modalCompleteTask'));
+                        modal.show();
+
+                        // Inicializar firma después de que el modal esté visible
+                        setTimeout(initSignaturePad, 300);
+                    } else {
+                        alert('Error al cargar datos de la tarea');
+                    }
+                })
+                .catch(err => {
+                    console.error('Error:', err);
+                    alert('Error al cargar la tarea');
+                });
+        }
+
+        function saveTaskCompletion() {
+            const taskId = document.getElementById('completeTaskId').value;
+            const description = document.getElementById('completeDescription').value.trim();
+            const parts = document.getElementById('completeParts').value.trim();
+
+            // VALIDACIONES
+            if (!description) {
+                alert('Por favor, describe el trabajo realizado');
+                document.getElementById('completeDescription').focus();
+                return;
+            }
+
+            const signatureClientName = document.getElementById('signatureClientName').value.trim();
+            const signatureData = getSignatureData();
+
+            if (!signatureClientName) {
+                alert('Por favor, ingresa el nombre completo del cliente que firma');
+                document.getElementById('signatureClientName').focus();
+                return;
+            }
+
+            if (!signatureData) {
+                alert('⚠️ La firma del cliente es OBLIGATORIA\n\nPor favor, solicita al cliente que firme en el recuadro para confirmar la asistencia.');
+                return;
+            }
+
+            // Recopilar datos de stock
+            const stockItemId = document.getElementById('completeStockItem').value;
+            const stockQuantity = document.getElementById('completeStockQuantity').value;
+            const stockAction = document.getElementById('completeStockAction').value;
+
+            // Preparar datos
+            const data = {
+                description: description,
+                parts: parts,
+                signature: signatureData,
+                signature_client_name: signatureClientName,
+                stock_item_id: stockItemId || null,
+                stock_quantity: stockQuantity || 0,
+                stock_action: stockAction,
+                attachments: [] // Los archivos se suben por separado
+            };
+
+            // Subir archivos primero si hay
+            if (selectedFiles.length > 0) {
+                uploadTaskFiles(taskId)
+                    .then(() => completeTaskFinal(taskId, data))
+                    .catch(err => {
+                        console.error('Error subiendo archivos:', err);
+                        alert('Error al subir archivos adjuntos');
+                    });
+            } else {
+                completeTaskFinal(taskId, data);
+            }
+        }
+
+        function uploadTaskFiles(taskId) {
+            const promises = selectedFiles.map(file => {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                return fetch(`/upload_task_file/${taskId}`, {
+                    method: 'POST',
+                    body: formData
+                }).then(res => res.json());
+            });
+
+            return Promise.all(promises);
+        }
+
+        function completeTaskFinal(taskId, data) {
+            fetch(`/complete_task/${taskId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+                .then(res => res.json())
+                .then(result => {
+                    if (result.success) {
+                        showToast('✅ Parte completado y firmado correctamente', 'success', 1500);
+                        setTimeout(() => location.reload(), 1600);
+                    } else {
+                        alert('Error: ' + result.msg);
+                    }
+                })
+                .catch(err => {
+                    console.error('Error:', err);
+                    alert('Error al completar el parte');
+                });
+        }
+
+        // Mostrar/ocultar detalles de stock
+        document.getElementById('completeStockItem')?.addEventListener('change', function () {
+            const div = document.getElementById('stockDetailsDiv');
+            div.style.display = this.value ? 'block' : 'none';
+        });
+
+
+        // ==================== INFORMACIÓN DEL CLIENTE ====================
+
+        function fillFromTask(selectElement) {
+            const selected = selectElement.options[selectElement.selectedIndex];
+
+            if (selected.value === 'none') {
+                document.getElementById('fieldClient').value = '';
+                document.getElementById('fieldDate').value = document.querySelector('[name="date"]').value;
+                document.getElementById('fieldEntryTime').value = '';
+                document.getElementById('fieldService').selectedIndex = 0;
+                document.getElementById('fieldDescription').value = '';
+                hideClientInfo();
+                return;
+            }
+
+            const taskId = selected.value;
+
+            fetch(`/api/get_task_full/${taskId}`)
+                .then(res => res.json())
+                .then(response => {
+                    if (response.success) {
+                        const task = response.data;
+
+                        document.getElementById('fieldClient').value = task.client_name;
+                        document.getElementById('fieldDate').value = task.date;
+                        document.getElementById('fieldEntryTime').value = task.start_time;
+
+                        // Seleccionar tipo de servicio
+                        const serviceSelect = document.getElementById('fieldService');
+                        for (let opt of serviceSelect.options) {
+                            if (opt.value === task.service_type) {
+                                serviceSelect.value = task.service_type;
+                                break;
+                            }
+                        }
+
+                        document.getElementById('fieldDescription').value = task.description;
+
+                        // Mostrar información del cliente
+                        if (task.client_info) {
+                            showClientInfo(task.client_info);
+                        }
+                    }
+                })
+                .catch(err => console.error('Error:', err));
+        }
+
+        function showClientInfo(clientInfo) {
+            let infoDiv = document.getElementById('clientInfoDisplay');
+
+            if (!infoDiv) {
+                infoDiv = document.createElement('div');
+                infoDiv.id = 'clientInfoDisplay';
+                infoDiv.className = 'alert mb-3 mt-2';
+                infoDiv.style.backgroundColor = '#1a1a1a';
+                infoDiv.style.border = '2px solid var(--osla-orange)';
+                infoDiv.style.color = 'white';
+                document.querySelector('#fieldClient').parentElement.appendChild(infoDiv);
+            }
+
+            let html = `
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="flex-grow-1">
+                        <h6 class="fw-bold mb-3 text-warning">
+                            <i class="bi bi-person-circle me-2"></i>
+                            Información del Cliente
+                        </h6>
+                        <div class="small">
+                            <div class="mb-2">
+                                <i class="bi bi-telephone text-warning me-2"></i>
+                                <a href="tel:${clientInfo.phone}" class="text-info fw-bold text-decoration-none">${clientInfo.phone}</a>
+                            </div>
+                            <div class="mb-2">
+                                <i class="bi bi-envelope text-warning me-2"></i>
+                                <span class="text-white fw-bold">${clientInfo.email}</span>
+                            </div>
+                            <div class="mb-2">
+                                <i class="bi bi-geo-alt text-warning me-2"></i>
+                                <span class="text-white">${clientInfo.address}</span>
+                            </div>
+                            ${clientInfo.link ? `
+                                <div class="mt-2">
+                                    <a href="${clientInfo.link}" target="_blank" class="btn btn-sm btn-warning fw-bold">
+                                        <i class="bi bi-map me-1"></i>Abrir en Maps
+                                    </a>
+                                </div>
+                            ` : ''}
+                            ${clientInfo.has_support ? `
+                                <div class="alert alert-success py-2 px-2 mt-2 mb-0 fw-bold" style="background-color: #28a745 !important; color: white !important; border: 2px solid #20c997;">
+                                    <small>
+                                        <i class="bi bi-shield-check me-1"></i>
+                                        <strong>Soporte Activo:</strong>
+                                        ${clientInfo.support_monday_friday ? 'L-V ' : ''}
+                                        ${clientInfo.support_saturday ? 'Sáb ' : ''}
+                                        ${clientInfo.support_sunday ? 'Dom' : ''}
+                                    </small>
+                                </div>
+                            ` : ''}
+                            ${clientInfo.notes ? `
+                                <div class="mt-2 pt-2 border-top border-secondary">
+                                    <i class="bi bi-sticky text-warning me-1"></i>
+                                    <span class="text-white-50">${clientInfo.notes}</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" onclick="hideClientInfo()"></button>
+                </div>
+            `;
+
+            infoDiv.innerHTML = html;
+            infoDiv.style.display = 'block';
+        }
+
+        function hideClientInfo() {
+            const infoDiv = document.getElementById('clientInfoDisplay');
+            if (infoDiv) {
+                infoDiv.style.display = 'none';
+            }
+        }
+
+
+        // ⚠️ CORRECCIÓN: Listener duplicado eliminado.
+        // El formulario ya tiene onsubmit="submitNewAppointment(event)" en el HTML (línea 743).
+        // Este listener duplicado causaba que se enviaran DOS requests simultáneos,
+        // haciendo que el segundo fallara con "ya existe la cita".
+
+        // Función para copiar dirección al portapapeles
+        function copyAddress(address) {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(address)
+                    .then(() => {
+                        alert('✓ Dirección copiada al portapapeles');
+                    })
+                    .catch(err => {
+                        console.error('Error al copiar:', err);
+                        alert('No se pudo copiar la dirección');
+                    });
+            } else {
+                // Fallback para navegadores antiguos
+                const textarea = document.createElement('textarea');
+                textarea.value = address;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    alert('✓ Dirección copiada al portapapeles');
+                } catch (err) {
+                    console.error('Error al copiar:', err);
+                    alert('No se pudo copiar la dirección');
+                }
+                document.body.removeChild(textarea);
+            }
+        }
+
+        // Función para añadir más items de stock
+        function addStockItem() {
+            const container = document.getElementById('stockItemsContainer');
+            const firstRow = container.querySelector('.stock-item-row');
+            const newRow = firstRow.cloneNode(true);
+
+            // Limpiar valores - ahora hay dos selects: item y acción
+            const selects = newRow.querySelectorAll('select');
+            selects[0].selectedIndex = 0; // Stock item
+            selects[1].selectedIndex = 0; // Stock action
+            newRow.querySelector('input[type="number"]').value = 0;
+
+            // Cambiar botón de + a -
+            const button = newRow.querySelector('button');
+            button.className = 'btn btn-danger btn-sm w-100';
+            button.innerHTML = '<i class="bi bi-dash-lg"></i>';
+            button.setAttribute('onclick', 'removeStockItem(this)');
+
+            container.appendChild(newRow);
+        }
+
+        // Función para eliminar item de stock
+        function removeStockItem(button) {
+            const row = button.closest('.stock-item-row');
+            row.remove();
+        }
+
+
+        // ==================== CRONÓMETRO DE TRABAJO ====================
+        let timerInterval  = null;
+        let timerRunning   = false;
+        let timerStartEpoch = null;   // epoch ms del momento en que se inició
+        let timerElapsed   = 0;       // segundos acumulados al detener
+
+        function toggleTimer() {
+            if (!timerRunning) {
+                // ── INICIAR ──
+                timerRunning    = true;
+                timerStartEpoch = Date.now();
+                timerInterval   = setInterval(tickTimer, 500);
+
+                document.getElementById('timerBtn').style.background     = '#dc3545';
+                document.getElementById('timerIcon').className            = 'bi bi-stop-fill me-1';
+                document.getElementById('timerBtnText').textContent       = 'Finalizar trabajo';
+                document.getElementById('timerStatus').textContent        = 'En marcha...';
+                document.getElementById('timerStatus').style.color        = '#28a745';
+                document.getElementById('timerDisplay').style.color       = '#f37021';
+                document.getElementById('timerDisplay').style.borderColor = '#f37021';
+                document.getElementById('workTimerBlock').style.borderColor = '#f37021';
+                document.getElementById('timerSummary').style.display     = 'none';
+
+            } else {
+                // ── DETENER ──
+                clearInterval(timerInterval);
+                timerRunning = false;
+                timerElapsed = Math.floor((Date.now() - timerStartEpoch) / 1000);
+
+                const h = Math.floor(timerElapsed / 3600);
+                const m = Math.floor((timerElapsed % 3600) / 60);
+                const s = timerElapsed % 60;
+                const hms = `${pad2(h)}:${pad2(m)}:${pad2(s)}`;
+
+                // Guardar en el campo oculto para enviarlo con el POST
+                document.getElementById('workDurationInput').value = hms;
+
+                // Resumen legible
+                let readable = '';
+                if (h > 0) readable += h + 'h ';
+                if (m > 0 || h > 0) readable += m + 'min ';
+                readable += s + 's';
+
+                document.getElementById('timerBtn').style.background        = '#198754';
+                document.getElementById('timerIcon').className               = 'bi bi-check-circle me-1';
+                document.getElementById('timerBtnText').textContent          = 'Reiniciar';
+                document.getElementById('timerStatus').textContent           = 'Finalizado';
+                document.getElementById('timerStatus').style.color           = '#28a745';
+                document.getElementById('timerDisplay').style.color          = '#28a745';
+                document.getElementById('timerDisplay').style.borderColor    = '#28a745';
+                document.getElementById('workTimerBlock').style.borderColor  = '#198754';
+                document.getElementById('timerSummary').style.display        = 'block';
+                document.getElementById('timerSummaryText').textContent      = readable.trim();
+
+                // Rellenar automáticamente hora de entrada/salida si están vacías
+                try {
+                    const startDt = new Date(timerStartEpoch);
+                    const endDt   = new Date(timerStartEpoch + timerElapsed * 1000);
+                    const toHM = dt => pad2(dt.getHours()) + ':' + pad2(dt.getMinutes());
+                    const entryF = document.getElementById('fieldEntryTime');
+                    const exitF  = document.querySelector('input[name="exit_time"]');
+                    if (entryF && !entryF.value) entryF.value = toHM(startDt);
+                    if (exitF  && !exitF.value)  exitF.value  = toHM(endDt);
+                } catch(e) {}
+
+                // Siguiente pulsación = reinicio completo
+                timerElapsed    = 0;
+                timerStartEpoch = null;
+            }
+        }
+
+        function tickTimer() {
+            const elapsed = Math.floor((Date.now() - timerStartEpoch) / 1000);
+            const h = Math.floor(elapsed / 3600);
+            const m = Math.floor((elapsed % 3600) / 60);
+            const s = elapsed % 60;
+            document.getElementById('timerDisplay').textContent = `${pad2(h)}:${pad2(m)}:${pad2(s)}`;
+        }
+
+        function pad2(n) { return String(n).padStart(2, '0'); }
+
+        // ==================== INCIDENCIAS ====================
+        function updateIncidenciaEmail() {
+            const tipo = document.getElementById('incidencia_tipo').value;
+            const emailSpan = document.getElementById('emailDestinatario');
+            
+            if (tipo === 'operativa') {
+                emailSpan.textContent = 'paco@oslaprint.com';
+            } else if (tipo === 'tecnica') {
+                emailSpan.textContent = 'nintecdeveloper@gmail.com';
+            } else {
+                emailSpan.textContent = 'Selecciona un tipo de incidencia';
+            }
+        }
+
+        // Manejar envío de formulario de incidencias
+        document.getElementById('formIncidencias')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const tipo = document.getElementById('incidencia_tipo').value;
+            const asunto = document.getElementById('incidencia_asunto').value;
+            const descripcion = document.getElementById('incidencia_descripcion').value;
+            const cliente = document.getElementById('incidencia_cliente').value;
+            
+            // Validar campos
+            if (!tipo || !asunto || !descripcion) {
+                alert('Por favor, complete todos los campos obligatorios');
+                return;
+            }
+            
+            // Enviar al servidor
+            fetch('/report_incidencia', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    tipo: tipo,
+                    asunto: asunto,
+                    descripcion: descripcion,
+                    cliente: cliente,
+                    usuario: '{{ current_user.username }}',
+                    email_usuario: '{{ current_user.email }}'
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert('✓ Incidencia reportada correctamente. Recibirás una respuesta pronto.');
+                    this.reset();
+                    updateIncidenciaEmail();
+                    showSection('home-menu');
+                } else {
+                    alert('❌ Error al enviar incidencia: ' + (data.msg || 'Error desconocido'));
+                }
+            })
+            .catch(err => {
+                console.error('Error:', err);
+                alert('❌ Error de conexión al enviar la incidencia');
+            });
+        });
+
+    </script>
+</body>
+
+</html>
